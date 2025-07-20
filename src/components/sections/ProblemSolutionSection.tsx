@@ -1,9 +1,15 @@
 import React from 'react';
 import { AlertCircle, ArrowRight, CheckCircle, Zap, Users, Clock, Target, TrendingUp, DollarSign, Headphones, Layers } from 'lucide-react';
+import { useScrollReveal } from '../../hooks/useScrollReveal';
 
 const ProblemSolutionSection = () => {
+  const [ref, isVisible] = useScrollReveal();
+
   return (
-    <section className="py-20 bg-gradient-to-br from-white via-slate-50 to-blue-50">
+    <section 
+      ref={ref}
+      className={`py-20 bg-gradient-to-br from-white via-slate-50 to-blue-50 scroll-reveal-section ${isVisible ? 'visible' : ''}`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Problem Statement */}
         <div className="text-center mb-16 scroll-reveal">

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Building, Rocket, Users, Sparkles, Code, TrendingUp, Bot, Zap } from 'lucide-react';
+import { useScrollReveal } from '../../hooks/useScrollReveal';
 
 const MultiAxisSection = () => {
+  const [ref, isVisible] = useScrollReveal();
   const [activeIntersection, setActiveIntersection] = useState<string | null>(null);
   const [hoveredCell, setHoveredCell] = useState<{row: number, col: number} | null>(null);
 
@@ -57,7 +59,10 @@ const MultiAxisSection = () => {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-br from-slate-50 to-blue-50">
+    <section 
+      ref={ref}
+      className={`py-20 bg-gradient-to-br from-slate-50 to-blue-50 scroll-reveal-section ${isVisible ? 'visible' : ''}`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16 scroll-reveal">
           <div className="inline-flex items-center space-x-2 bg-blue-50 rounded-full px-6 py-3 mb-6 border border-blue-200">

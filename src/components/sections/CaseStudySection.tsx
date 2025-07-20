@@ -1,7 +1,9 @@
 import React from 'react';
 import { ArrowRight, TrendingUp, Clock, DollarSign, Award, Users, Zap, Star } from 'lucide-react';
+import { useScrollReveal } from '../../hooks/useScrollReveal';
 
 const CaseStudySection = () => {
+  const [ref, isVisible] = useScrollReveal();
   const caseStudies = [
     {
       client: 'TechStart Solutions',
@@ -51,7 +53,10 @@ const CaseStudySection = () => {
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-br from-slate-50 to-white">
+    <section 
+      ref={ref}
+      className={`py-20 bg-gradient-to-br from-slate-50 to-white scroll-reveal-section ${isVisible ? 'visible' : ''}`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16 scroll-reveal">
           <div className="inline-flex items-center space-x-2 bg-green-50 rounded-full px-6 py-3 mb-6 border border-green-200">

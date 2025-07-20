@@ -1,7 +1,9 @@
 import React from 'react';
 import { Brain, Code, TrendingUp, Globe, Award, Star, Linkedin, Video, Zap } from 'lucide-react';
+import { useScrollReveal } from '../../hooks/useScrollReveal';
 
 const TeamSection = () => {
+  const [ref, isVisible] = useScrollReveal();
   const teamMembers = [
     {
       name: 'Oussama',
@@ -56,7 +58,10 @@ const TeamSection = () => {
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-br from-white to-slate-50">
+    <section 
+      ref={ref}
+      className={`py-20 bg-gradient-to-br from-white to-slate-50 scroll-reveal-section ${isVisible ? 'visible' : ''}`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16 scroll-reveal">
           <div className="inline-flex items-center space-x-2 bg-purple-50 rounded-full px-6 py-3 mb-6 border border-purple-200">

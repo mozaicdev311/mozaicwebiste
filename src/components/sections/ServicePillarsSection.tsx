@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Palette, Code, TrendingUp, Bot, Zap, ArrowRight, Sparkles, Star, Award } from 'lucide-react';
+import { useScrollReveal } from '../../hooks/useScrollReveal';
 
 const ServicePillarsSection = () => {
+  const [ref, isVisible] = useScrollReveal();
   const pillars = [
     {
       icon: Palette,
@@ -58,7 +60,10 @@ const ServicePillarsSection = () => {
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-br from-slate-50 via-white to-blue-50">
+    <section 
+      ref={ref}
+      className={`py-20 bg-gradient-to-br from-slate-50 via-white to-blue-50 scroll-reveal-section ${isVisible ? 'visible' : ''}`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16 scroll-reveal">
           <div className="inline-flex items-center space-x-2 bg-blue-50 rounded-full px-6 py-3 mb-6 border border-blue-200">

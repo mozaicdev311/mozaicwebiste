@@ -1,9 +1,15 @@
 import React from 'react';
-import { ArrowRight, Globe, Brain, Code, TrendingUp, Sparkles, Zap, Award, Star } from 'lucide-react';
+import { ArrowRight, Brain, Code, Sparkles, Zap, Award, Star } from 'lucide-react';
+import { useScrollReveal } from '../../hooks/useScrollReveal';
 
 const HeroSection = () => {
+  const [ref, isVisible] = useScrollReveal();
+
   return (
-    <section className="relative py-20 lg:py-32 hero-bg overflow-hidden">
+    <section 
+      ref={ref}
+      className={`relative pt-12 pb-20 lg:pt-20 lg:pb-32 hero-bg overflow-hidden scroll-reveal-section ${isVisible ? 'visible' : ''}`}
+    >
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float"></div>
@@ -43,20 +49,20 @@ const HeroSection = () => {
               <span>Get Your Free Growth Blueprint</span>
               <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </button>
-            <button className="btn-secondary text-blue-600 px-8 py-4 rounded-xl font-semibold text-lg inline-flex items-center justify-center space-x-2">
-              <Star className="h-5 w-5" />
-              <span>Explore Our Work</span>
+            <button className="btn-secondary font-semibold text-lg">
+              <span className="btn-secondary-inner inline-flex items-center justify-center space-x-2 text-blue-600">
+                <Star className="h-5 w-5" />
+                <span>Explore Our Work</span>
+              </span>
             </button>
           </div>
           
           {/* Enhanced trust indicators */}
           <div className="animate-fade-in-up" style={{animationDelay: '0.6s'}}>
             <div className="flex flex-wrap justify-center items-center gap-6 text-slate-500 mb-8">
-              <div className="trust-indicator px-6 py-3 rounded-full border border-slate-200 bg-white/60 backdrop-blur-sm">
-                <div className="flex items-center space-x-2">
-                  <Brain className="h-5 w-5 text-purple-600" />
-                  <span className="font-medium text-slate-700">A.I. Integrated</span>
-                </div>
+              <div className="flex items-center space-x-2 trust-indicator px-4 py-2 rounded-lg">
+                <Brain className="h-5 w-5 text-purple-600" />
+                <span className="font-medium text-slate-700">A.I. Integrated</span>
               </div>
               
               <div className="hidden sm:block w-px h-6 bg-slate-300"></div>
@@ -74,7 +80,7 @@ const HeroSection = () => {
             </div>
             
             {/* Language capabilities */}
-            <div className="flex flex-wrap justify-center gap-3">
+            <div className="flex flex-wrap justify-center gap-3 mb-12">
               {[
                 { code: 'EN', name: 'English', flag: '🇺🇸' },
                 { code: 'FR', name: 'Français', flag: '🇫🇷' },
