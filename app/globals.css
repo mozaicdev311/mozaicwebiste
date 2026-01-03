@@ -1,0 +1,170 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* MOZAIC Brand Colors - Exact HEX Values */
+  --mozaic-red: #FF0000;
+  --mozaic-green: #00FF00;
+  --mozaic-black: #000000;
+  --mozaic-white: #FFFFFF;
+
+  /* Semantic Colors - Light Mode (Default) */
+  --background: var(--mozaic-white);
+  --foreground: var(--mozaic-black);
+  
+  --card: var(--mozaic-white);
+  --card-foreground: var(--mozaic-black);
+  
+  --popover: var(--mozaic-white);
+  --popover-foreground: var(--mozaic-black);
+  
+  --primary: var(--mozaic-black);
+  --primary-foreground: var(--mozaic-white);
+  
+  --secondary: #F4F4F5; /* Slight contrast for secondary elements */
+  --secondary-foreground: var(--mozaic-black);
+  
+  --muted: #F4F4F5;
+  --muted-foreground: #71717A;
+  
+  --accent: var(--mozaic-green);
+  --accent-foreground: var(--mozaic-black);
+  
+  --destructive: var(--mozaic-red);
+  --destructive-foreground: var(--mozaic-white);
+  
+  --border: var(--mozaic-black); /* Strong contrast borders */
+  --input: var(--mozaic-black);
+  --ring: var(--mozaic-black);
+  
+  /* Chart Colors using Brand Palette */
+  --chart-1: var(--mozaic-red);
+  --chart-2: var(--mozaic-green);
+  --chart-3: var(--mozaic-black);
+  --chart-4: #808080;
+  --chart-5: #E5E5E5;
+  
+  --radius: 0.625rem;
+  
+  /* Sidebar Colors */
+  --sidebar: var(--mozaic-white);
+  --sidebar-foreground: var(--mozaic-black);
+  --sidebar-primary: var(--mozaic-black);
+  --sidebar-primary-foreground: var(--mozaic-white);
+  --sidebar-accent: var(--mozaic-green);
+  --sidebar-accent-foreground: var(--mozaic-black);
+  --sidebar-border: var(--mozaic-black);
+  --sidebar-ring: var(--mozaic-black);
+}
+
+.dark {
+  /* Semantic Colors - Dark Mode */
+  --background: var(--mozaic-black);
+  --foreground: var(--mozaic-white);
+  
+  --card: var(--mozaic-black);
+  --card-foreground: var(--mozaic-white);
+  
+  --popover: var(--mozaic-black);
+  --popover-foreground: var(--mozaic-white);
+  
+  --primary: var(--mozaic-white);
+  --primary-foreground: var(--mozaic-black);
+  
+  --secondary: #27272A;
+  --secondary-foreground: var(--mozaic-white);
+  
+  --muted: #27272A;
+  --muted-foreground: #A1A1AA;
+  
+  --accent: var(--mozaic-green);
+  --accent-foreground: var(--mozaic-black);
+  
+  --destructive: var(--mozaic-red);
+  --destructive-foreground: var(--mozaic-white);
+  
+  --border: var(--mozaic-white);
+  --input: var(--mozaic-white);
+  --ring: var(--mozaic-white);
+  
+  /* Sidebar Colors Dark */
+  --sidebar: var(--mozaic-black);
+  --sidebar-foreground: var(--mozaic-white);
+  --sidebar-primary: var(--mozaic-white);
+  --sidebar-primary-foreground: var(--mozaic-black);
+  --sidebar-accent: var(--mozaic-green);
+  --sidebar-accent-foreground: var(--mozaic-black);
+  --sidebar-border: var(--mozaic-white);
+  --sidebar-ring: var(--mozaic-white);
+}
+
+@theme inline {
+  /* Using Inter font as specified in brand guidelines */
+  --font-sans: var(--font-inter), "Inter", system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Expose Brand Colors as Utilities */
+  --color-mozaic-red: var(--mozaic-red);
+  --color-mozaic-green: var(--mozaic-green);
+  --color-mozaic-black: var(--mozaic-black);
+  --color-mozaic-white: var(--mozaic-white);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* MOZAIC Custom Typography Utilities */
+.text-balance {
+  text-wrap: balance;
+}
+
+.text-pretty {
+  text-wrap: pretty;
+}
