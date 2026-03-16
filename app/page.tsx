@@ -1,5 +1,5 @@
 import Image from "next/image"
-import MozaicHero from "@/components/mozaic-hero"
+import SplitHero from "@/components/split-hero/split-hero"
 import { Button } from "@/components/ui/button"
 import { ButtonGroup } from "@/components/ui/button-group"
 import { Item, ItemGroup, ItemMedia, ItemContent, ItemTitle, ItemDescription, ItemActions } from "@/components/ui/item"
@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* SECTION 1: HERO */}
-      <MozaicHero />
+      <SplitHero />
 
       {/* SECTION 2: PROBLEM */}
       <section className="bg-[#FFFFFF] text-[#000000] py-24 md:py-32">
