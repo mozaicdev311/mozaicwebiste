@@ -1,5 +1,6 @@
 import Image from "next/image"
 import SplitHero from "@/components/split-hero/split-hero"
+import { SectionProposition } from "@/components/sections/section-proposition"
 import { Button } from "@/components/ui/button"
 import { ButtonGroup } from "@/components/ui/button-group"
 import { Item, ItemGroup, ItemMedia, ItemContent, ItemTitle, ItemDescription, ItemActions } from "@/components/ui/item"
@@ -8,40 +9,8 @@ import { EvervaultCard, Icon } from "@/components/ui/evervault-card"
 export default function Home() {
   return (
     <div className="min-h-screen">
-      {/* SECTION 1: HERO */}
+      {/* SECTION 1 & 2: HERO & PROPOSITION */}
       <SplitHero />
-
-      {/* SECTION 2: PROBLEM */}
-      <section className="bg-[#FFFFFF] text-[#000000] py-24 md:py-32">
-        <div className="max-w-5xl mx-auto px-6 lg:px-8">
-          <h2 className="font-extrabold text-5xl md:text-7xl mb-12 text-balance">
-            The Problem With
-            <br />
-            Digital Projects
-          </h2>
-
-          <div className="space-y-6 text-lg md:text-xl leading-relaxed mb-12">
-            <p className="font-regular">Most digital projects look like this:</p>
-
-            <div className="space-y-3 pl-6">
-              <p>→ One agency for branding</p>
-              <p>→ Another for development</p>
-              <p>→ Another for infrastructure</p>
-              <p>→ Another for marketing</p>
-            </div>
-
-            <p className="font-regular pt-4">You coordinate. Budgets balloon. Timelines slip. Nothing connects.</p>
-          </div>
-
-          <p className="font-extrabold text-3xl md:text-5xl text-[#FF0000] text-balance">
-            Fragmented systems.
-            <br />
-            Miscommunication.
-            <br />
-            Blown budgets.
-          </p>
-        </div>
-      </section>
 
       {/* SECTION 3: SOLUTION */}
       <section className="bg-[#000000] text-[#FFFFFF] py-24 md:py-32">
