@@ -290,8 +290,9 @@ export default function SplitHero() {
         {/* Mobile View Structure */}
         <div className="s2-mobile-content absolute inset-0 z-30 flex flex-col items-center justify-center px-6 lg:hidden opacity-0">
           <h2 className="text-[32px] font-bold leading-[1.15] text-center text-white font-serif mb-4">
-            Brand, product, and intelligent systems. <br />
-            <span className="text-[#00FF66]">Built as one.</span>
+            Brand, product, and intelligent systems.
+            <br />
+            Built as one.
           </h2>
           <div className="text-white/35 font-mono text-[10px] tracking-[0.2em] mt-12 animate-bounce">
             ↓ SCROLL TO EXPLORE
@@ -317,15 +318,14 @@ export default function SplitHero() {
         <div className="absolute inset-0 z-[45] items-center justify-center pointer-events-none hidden lg:flex">
           <div className="max-w-[720px] w-full px-6 text-center">
             <div className="s2-label opacity-0 text-white/40 font-mono text-[10px] tracking-[0.15em] mb-12">
-              ── 002 · THE PROPOSITION
+              Founder-led studio
             </div>
             <h1 className="s2-headline opacity-0 text-white text-[36px] lg:text-[48px] font-bold leading-[1.15] font-serif mb-8">
               Brand, product, and intelligent systems.<br/>
-              <span className="text-[#00FF66]">Built as one.</span>
+              Built as one.
             </h1>
             <p className="s2-subheadline opacity-0 text-white/65 font-mono text-[14px] lg:text-[15px] leading-[1.7] max-w-[640px] mx-auto mb-10">
-              Creative direction shaped at Back Market, Moët Hennessy, Whatnot, and Vice TV. 
-              Engineering standards from fintech. Product thinking from platforms we built and shipped ourselves. 
+              Creative direction at global brand level. Engineering shaped in fintech. Product thinking from platforms we composed and shipped ourselves. 
               One operating team. Led by founders. Backed by specialists.
             </p>
             <div className="s2-ctas opacity-0 flex items-center justify-center gap-4 mb-12 pointer-events-auto">
@@ -337,9 +337,9 @@ export default function SplitHero() {
               </a>
             </div>
             <div className="s2-stats opacity-0 flex items-center justify-center gap-6 font-mono text-[11px] text-white/45">
-              <span><span className="text-[#00FF66]">◉</span> 3-5X FASTER</span>
-              <span><span className="text-[#00FF66]">◉</span> 40% LOWER COST</span>
-              <span><span className="text-white">◉</span> END-TO-END</span>
+              <span>ONE OPERATING TEAM</span>
+              <span>FOUNDER-LED</span>
+              <span>SPECIALIST-BACKED</span>
             </div>
           </div>
         </div>
