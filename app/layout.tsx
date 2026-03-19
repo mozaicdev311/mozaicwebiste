@@ -15,21 +15,9 @@ export const metadata: Metadata = {
   description:
     "Creative, development, and infrastructure—integrated. Full-stack digital studio for brands ready to move faster.",
   icons: {
-    icon: [
-      {
-        url: "/",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "",
-        type: "image/svg+xml",
-      },
-    ],
-    apple: "/",
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
   },
 }
 
