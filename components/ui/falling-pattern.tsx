@@ -22,7 +22,7 @@ export function FallingPattern({
   backgroundColor = "var(--background)",
   duration = 150,
   blurIntensity = "1em",
-  density = 1,
+  density = 2,
   className,
 }: FallingPatternProps) {
   // Generate background image style with customizable color

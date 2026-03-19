@@ -25,21 +25,13 @@ export default function SplitHero() {
     let mm = gsap.matchMedia()
 
     mm.add("(min-width: 1024px)", () => {
-      // Base Desktop Setup - The Mozaic Lock
-      gsap.set(containerRef.current, {
-        "--v1": "50%", "--v2": "50%", "--v3": "50%",
-        "--v4": "50%", "--v5": "50%", "--v6": "50%"
-      })
-
-      const leftPolygon = "polygon(0% 0%, var(--v1) 0%, var(--v1) 16.666%, var(--v2) 16.666%, var(--v2) 33.333%, var(--v3) 33.333%, var(--v3) 50%, var(--v4) 50%, var(--v4) 66.666%, var(--v5) 66.666%, var(--v5) 83.333%, var(--v6) 83.333%, var(--v6) 100%, 0% 100%)"
-      const rightPolygon = "polygon(100% 0%, var(--v1) 0%, var(--v1) 16.666%, var(--v2) 16.666%, var(--v2) 33.333%, var(--v3) 33.333%, var(--v3) 50%, var(--v4) 50%, var(--v4) 66.666%, var(--v5) 66.666%, var(--v5) 83.333%, var(--v6) 83.333%, var(--v6) 100%, 100% 100%)"
-
-      gsap.set('.panel-left-wrapper', { clipPath: leftPolygon })
-      gsap.set('.panel-right-wrapper', { clipPath: rightPolygon })
-      gsap.set('.canvas-left', { clipPath: leftPolygon })
-      gsap.set('.canvas-right', { clipPath: rightPolygon })
+      // Base Desktop Setup - The Data Overload
+      gsap.set('.panel-left-wrapper', { clipPath: 'inset(0 50% 0 0)' })
+      gsap.set('.panel-right-wrapper', { clipPath: 'inset(0 0 0 50%)' })
+      gsap.set('.canvas-left', { clipPath: 'inset(0 50% 0 0)' })
+      gsap.set('.canvas-right', { clipPath: 'inset(0 0 0 50%)' })
       
-      gsap.set('.hero-seam', { left: '50%' })
+      gsap.set('.hero-seam-main', { left: '50%' })
       gsap.set('.matrix-rain-container', { "--bleed-progress": "0%" })
       gsap.set('.s2-mobile-content', { opacity: 0 })
 
@@ -48,12 +40,11 @@ export default function SplitHero() {
       
       const onMouseEnterLeft = () => {
         if (isLocked) return
-        gsap.to(containerRef.current, {
-          "--v1": "58%", "--v2": "58%", "--v3": "58%",
-          "--v4": "58%", "--v5": "58%", "--v6": "58%",
-          duration: 0.5, ease: 'power3.out'
-        })
-        gsap.to('.hero-seam', { left: '58%', duration: 0.5, ease: 'power3.out' })
+        gsap.to('.panel-left-wrapper', { clipPath: 'inset(0 42% 0 0)', duration: 0.5, ease: 'power3.out' })
+        gsap.to('.panel-right-wrapper', { clipPath: 'inset(0 0 0 58%)', duration: 0.5, ease: 'power3.out' })
+        gsap.to('.hero-seam-main', { left: '58%', duration: 0.5, ease: 'power3.out' })
+        gsap.to('.canvas-left', { clipPath: 'inset(0 42% 0 0)', duration: 0.5, ease: 'power3.out' })
+        gsap.to('.canvas-right', { clipPath: 'inset(0 0 0 58%)', duration: 0.5, ease: 'power3.out' })
         gsap.to('.panel-left-wrapper .panel-overlay', { backgroundColor: 'rgba(0,0,0,0)', duration: 0.4 })
         gsap.to('.panel-right-wrapper .panel-overlay', { backgroundColor: 'rgba(0,0,0,0.4)', duration: 0.4 })
         gsap.to('.panel-left-wrapper .panel-desc', { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out', delay: 0.1 })
@@ -61,12 +52,11 @@ export default function SplitHero() {
 
       const onMouseEnterRight = () => {
         if (isLocked) return
-        gsap.to(containerRef.current, {
-          "--v1": "42%", "--v2": "42%", "--v3": "42%",
-          "--v4": "42%", "--v5": "42%", "--v6": "42%",
-          duration: 0.5, ease: 'power3.out'
-        })
-        gsap.to('.hero-seam', { left: '42%', duration: 0.5, ease: 'power3.out' })
+        gsap.to('.panel-left-wrapper', { clipPath: 'inset(0 58% 0 0)', duration: 0.5, ease: 'power3.out' })
+        gsap.to('.panel-right-wrapper', { clipPath: 'inset(0 0 0 42%)', duration: 0.5, ease: 'power3.out' })
+        gsap.to('.hero-seam-main', { left: '42%', duration: 0.5, ease: 'power3.out' })
+        gsap.to('.canvas-left', { clipPath: 'inset(0 58% 0 0)', duration: 0.5, ease: 'power3.out' })
+        gsap.to('.canvas-right', { clipPath: 'inset(0 0 0 42%)', duration: 0.5, ease: 'power3.out' })
         gsap.to('.panel-left-wrapper .panel-overlay', { backgroundColor: 'rgba(0,0,0,0.4)', duration: 0.4 })
         gsap.to('.panel-right-wrapper .panel-overlay', { backgroundColor: 'rgba(0,0,0,0)', duration: 0.4 })
         gsap.to('.panel-right-wrapper .panel-desc', { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out', delay: 0.1 })
@@ -74,12 +64,9 @@ export default function SplitHero() {
 
       const onMouseLeave = () => {
         if (isLocked) return
-        gsap.to(containerRef.current, {
-          "--v1": "50%", "--v2": "50%", "--v3": "50%",
-          "--v4": "50%", "--v5": "50%", "--v6": "50%",
-          duration: 0.5, ease: 'power3.out'
-        })
-        gsap.to('.hero-seam', { left: '50%', duration: 0.5, ease: 'power3.out' })
+        gsap.to(['.panel-left-wrapper', '.canvas-left'], { clipPath: 'inset(0 50% 0 0)', duration: 0.5, ease: 'power3.out' })
+        gsap.to(['.panel-right-wrapper', '.canvas-right'], { clipPath: 'inset(0 0 0 50%)', duration: 0.5, ease: 'power3.out' })
+        gsap.to('.hero-seam-main', { left: '50%', duration: 0.5, ease: 'power3.out' })
         gsap.to('.panel-overlay', { backgroundColor: 'rgba(0,0,0,0.2)', duration: 0.4 })
         gsap.to('.panel-desc', { opacity: 0, y: 8, duration: 0.3, ease: 'power2.in' })
       }
@@ -109,24 +96,21 @@ export default function SplitHero() {
             if (p > 0.05 && !isLocked) {
               isLocked = true
               gsap.set('.panel-container', { cursor: 'default' })
-              gsap.to(containerRef.current, {
-                "--v1": "50%", "--v2": "50%", "--v3": "50%",
-                "--v4": "50%", "--v5": "50%", "--v6": "50%",
-                duration: 0.3
-              })
-              gsap.to('.hero-seam', { left: '50%', duration: 0.3 })
+              gsap.to(['.panel-left-wrapper', '.canvas-left'], { clipPath: 'inset(0 50% 0 0)', duration: 0.3 })
+              gsap.to(['.panel-right-wrapper', '.canvas-right'], { clipPath: 'inset(0 0 0 50%)', duration: 0.3 })
+              gsap.to('.hero-seam-main', { left: '50%', duration: 0.3 })
               gsap.to('.panel-desc', { opacity: 0, duration: 0.2 })
             } else if (p <= 0.05 && isLocked) {
               isLocked = false
               gsap.set('.panel-container', { cursor: 'pointer' })
             }
 
-            // HUD Diagnostics (Engineered Precision)
+            // HUD Diagnostics (Data Overload)
             if (sysTextEl) {
               if (p < 0.1) sysTextEl.textContent = "SYSTEM.ACTIVE"
-              else if (p >= 0.1 && p < 0.2) sysTextEl.textContent = "SYSTEM.SYNC_INIT"
-              else if (p >= 0.2 && p < 0.4) sysTextEl.textContent = "WEAVING_MATRICES"
-              else if (p >= 0.4 && p < 0.7) sysTextEl.textContent = "UNIFICATION_PHASE"
+              else if (p >= 0.1 && p < 0.2) sysTextEl.textContent = "SURGE_DETECTED // MULTIPLYING"
+              else if (p >= 0.2 && p < 0.4) sysTextEl.textContent = "DATA_OVERLOAD // CASCADE"
+              else if (p >= 0.4 && p < 0.7) sysTextEl.textContent = "MATRIX_BLEED // UNIFYING"
               else sysTextEl.textContent = "SYSTEM.UNIFIED"
             }
 
@@ -142,38 +126,78 @@ export default function SplitHero() {
         }
       })
 
-      // === PHASE 1: THE SLICING (0% - 20%) ===
+      // === PHASE 1: THE MULTIPLICATION (0% - 20%) ===
       // Hide standard UI elements gracefully
       masterTl.to(".hero-panel-content, .panel-bracket, .scroll-indicator", { opacity: 0, duration: 0.1, ease: "power2.inOut" }, 0)
       
-      // The Seam gracefully fades out to prepare for the weave
-      masterTl.to(".hero-seam", { opacity: 0, duration: 0.1, ease: "power2.out" }, 0.05)
+      // The Seam begins to glow and surge
+      masterTl.to(".hero-seam-main", { 
+        width: "6px", 
+        backgroundColor: "rgba(255, 255, 255, 1)", 
+        boxShadow: "0 0 30px rgba(255, 255, 255, 0.8)", 
+        duration: 0.1, 
+        ease: "power2.in" 
+      }, 0.05)
 
 
-      // === PHASE 2: THE MOZAIC WEAVE (20% - 50%) ===
-      const weaveStart = 0.15
-      const weaveDuration = 0.25
+      // === PHASE 2: THE DATA OVERLOAD CRASH (20% - 50%) ===
+      const overloadStart = 0.15
       
-      // Staggered interlocking of the 6 bands.
-      // Left pushes right on bands 1, 3, 5. Right pushes left on bands 2, 4, 6.
-      masterTl.to(containerRef.current, { "--v1": "100%", duration: weaveDuration, ease: "power3.inOut" }, weaveStart)
-      masterTl.to(containerRef.current, { "--v2": "0%",   duration: weaveDuration, ease: "power3.inOut" }, weaveStart + 0.03)
-      masterTl.to(containerRef.current, { "--v3": "100%", duration: weaveDuration, ease: "power3.inOut" }, weaveStart + 0.06)
-      masterTl.to(containerRef.current, { "--v4": "0%",   duration: weaveDuration, ease: "power3.inOut" }, weaveStart + 0.09)
-      masterTl.to(containerRef.current, { "--v5": "100%", duration: weaveDuration, ease: "power3.inOut" }, weaveStart + 0.12)
-      masterTl.to(containerRef.current, { "--v6": "0%",   duration: weaveDuration, ease: "power3.inOut" }, weaveStart + 0.15)
-
-
-      // === PHASE 3: THE BLEED (50% - 75%) ===
-      const bleedStart = 0.5
+      // The panels violently glitch out and desaturate
+      masterTl.to(['.panel-left-wrapper', '.panel-right-wrapper'], { 
+        filter: 'grayscale(100%) brightness(0.6) contrast(150%)', 
+        duration: 0.05 
+      }, overloadStart)
       
-      masterTl.to(".corruption-layer", { opacity: 1, duration: 0.2, ease: "none" }, bleedStart)
+      masterTl.to(['.panel-left-wrapper', '.panel-right-wrapper'], { 
+        opacity: 0, 
+        scale: 1.05, 
+        duration: 0.2, 
+        ease: "power3.in" 
+      }, overloadStart + 0.1)
+
+      // The 45 lines burst horizontally outwards
+      masterTl.set(".overload-lines", { opacity: 1 }, overloadStart)
       
-      // The rain is dragged down by the user
+      const lines = gsap.utils.toArray('.overload-line')
+      lines.forEach((line: any, i) => {
+        // Calculate a random target between 0 and 100vw
+        const targetLeft = gsap.utils.random(0, 100) + '%'
+        
+        // 1. Horizontal Spread (SURGE)
+        masterTl.to(line, {
+          left: targetLeft,
+          scaleY: gsap.utils.random(0.3, 1),
+          yPercent: gsap.utils.random(-20, 20),
+          opacity: gsap.utils.random(0.5, 1),
+          duration: 0.1,
+          ease: "power3.out"
+        }, overloadStart)
+        
+        // 2. GRAVITY COLLAPSE (Everything crashes DOWN)
+        masterTl.to(line, {
+          yPercent: 200, // Violent downward collapse
+          scaleY: gsap.utils.random(2, 5), // Intense light speed stretch
+          opacity: 0,
+          duration: 0.15, // High speed
+          ease: "power2.in"
+        }, overloadStart + 0.12)
+      })
+
+      // Hide the main seam as it explodes
+      masterTl.to(".hero-seam-main", { opacity: 0, scaleY: 2, duration: 0.1 }, overloadStart)
+
+      // === PHASE 3: THE VACUUM & CASCADE (50% - 75%) ===
+      // Tiny beat of pure black void before the rain enters
+      const cascadeStart = 0.52
+      
+      masterTl.to(".corruption-layer", { opacity: 1, duration: 0.1, ease: "none" }, 0.45)
+      
+      // The rain "chases" the downward momentum
       masterTl.fromTo(".matrix-rain-container", 
-        { "--bleed-progress": "-30%" }, 
-        { "--bleed-progress": "100%", duration: 0.25, ease: "none" }, 
-        bleedStart
+        { "--bleed-progress": "-50%" }, 
+        { "--bleed-progress": "100%", duration: 0.35, ease: "power1.inOut" }, 
+        cascadeStart
       )
 
       // === PHASE 4: THE REBIRTH (75% - 100%) ===
