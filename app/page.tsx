@@ -1,6 +1,5 @@
 import Image from "next/image"
 import SplitHero from "@/components/split-hero/split-hero"
-import { SectionProposition } from "@/components/sections/section-proposition"
 import { Button } from "@/components/ui/button"
 import { ButtonGroup } from "@/components/ui/button-group"
 import { Item, ItemGroup, ItemMedia, ItemContent, ItemTitle, ItemDescription, ItemActions } from "@/components/ui/item"

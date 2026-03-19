@@ -25,13 +25,6 @@ export const HeroSeam = forwardRef<HTMLDivElement, HeroSeamProps>(
           })
         }}
       >
-        {/* Fracture lines container */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-0 h-0 pointer-events-none">
-          <div className="fracture-line absolute h-px bg-white/60 left-0 origin-left" style={{ top: "-48px", transform: "rotate(12deg)", width: 0 }} />
-          <div className="fracture-line absolute h-px bg-white/60 right-0 origin-right" style={{ top: "32px", transform: "rotate(-8deg)", width: 0 }} />
-          <div className="fracture-line absolute h-px bg-white/60 left-0 origin-left" style={{ top: "80px", transform: "rotate(5deg)", width: 0 }} />
-          <div className="fracture-line absolute h-px bg-white/60 right-0 origin-right" style={{ top: "-64px", transform: "rotate(-15deg)", width: 0 }} />
-        </div>
       </div>
     )
   }

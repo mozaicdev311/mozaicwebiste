@@ -12,21 +12,6 @@ export const ScrollIndicator = forwardRef<HTMLDivElement, {}>((props, ref) => {
         <span className="inline-block animate-bounce mr-1">↓</span>
         SCROLL TO SYNTHESIZE
       </span>
-
-      <style jsx>{`
-        @keyframes bounce {
-          0%,
-          100% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(4px);
-          }
-        }
-        .animate-bounce {
-          animation: bounce 2s ease-in-out infinite;
-        }
-      `}</style>
     </div>
   )
 })

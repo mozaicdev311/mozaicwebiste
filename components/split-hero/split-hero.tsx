@@ -8,7 +8,7 @@ import { SharedBackground, SharedTopBar, SharedBottomBar } from "./shared-elemen
 import { SplitHeroPanel } from "./split-hero-panel"
 import { HeroPanelContent } from "./hero-panel-content"
 import { HeroSeam } from "./hero-seam"
-import { MosaicTransitionOverlay } from "./mosaic-transition"
+import { FallingPattern } from "@/components/ui/falling-pattern"
 import { ScrollIndicator } from "./scroll-indicator"
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
@@ -37,11 +37,13 @@ export default function SplitHero() {
   useGSAP(() => {
     if (isMobile) return // No scroll anims on mobile
 
-    const tl = gsap.timeline({
+    // --- TIMELINE 1: SCRUBBED OVERLAP (0% to 50vh) ---
+    // This timeline remains tied to the scroll wheel so the initial lock/overlap feels interactive.
+    const tlScrub = gsap.timeline({
       scrollTrigger: {
         trigger: containerRef.current,
         start: "top top",
-        end: "bottom bottom",
+        end: "top -50vh", // Only scrubs for the first 50vh of the container
         scrub: true,
         onUpdate: (self) => {
           const p = self.progress
@@ -58,15 +60,14 @@ export default function SplitHero() {
 
           // HUD Text Updates
           if (systemTextRef.current) {
-            if (p < 0.05) systemTextRef.current.textContent = "SYSTEM.ACTIVE"
-            else if (p >= 0.05 && p < 0.15) systemTextRef.current.textContent = "◉ SYNTHESIS.INIT"
-            else if (p >= 0.15 && p < 0.3) systemTextRef.current.textContent = "◉ MERGING..."
-            else if (p >= 0.3 && p < 0.7) systemTextRef.current.textContent = "◉ RECONFIGURING"
+            if (p < 0.2) systemTextRef.current.textContent = "SYSTEM.ACTIVE"
+            else if (p >= 0.2 && p < 0.5) systemTextRef.current.textContent = "◉ SYNTHESIS.INIT"
+            else if (p >= 0.5 && p < 0.9) systemTextRef.current.textContent = "◉ MERGING..."
             else systemTextRef.current.textContent = "SYSTEM.UNIFIED"
           }
 
           if (progressBarsRef.current) {
-            const bars = p < 0.3 ? 0 : p >= 0.7 ? 8 : Math.floor(((p - 0.3) / 0.4) * 8)
+            const bars = Math.floor(p * 8)
             const children = progressBarsRef.current.children
             for (let i = 0; i < children.length; i++) {
               (children[i] as HTMLElement).style.opacity = i < bars ? "0.8" : "0.3"
@@ -76,125 +77,53 @@ export default function SplitHero() {
       }
     })
 
-    // --- PHASE 3: SNAP & LOCK (0% -> 5%) ---
-    // Fade out text elements and scroll indicator
-    tl.to(".hero-panel-content, .panel-bracket, .scroll-indicator", {
-      opacity: 0,
-      duration: 0.05,
-      ease: "power2.inOut"
-    }, 0)
+    // --- PHASE 3: SNAP & LOCK ---
+    tlScrub.to(".hero-panel-content, .panel-bracket, .scroll-indicator", { opacity: 0, duration: 0.1, ease: "power2.inOut" }, 0)
+    tlScrub.to(stickyRef.current, { x: 1, y: -1, duration: 0.02, ease: "none" }, 0.1)
+    tlScrub.to(stickyRef.current, { x: -2, y: 1, duration: 0.02, ease: "none" }, 0.12)
+    tlScrub.to(stickyRef.current, { x: 1, y: 0, duration: 0.02, ease: "none" }, 0.14)
+    tlScrub.to(stickyRef.current, { x: 0, y: 0, duration: 0.04, ease: "power2.out" }, 0.16)
 
-    // Micro-shake at fracture moment
-    tl.to(stickyRef.current, { x: 1, y: -1, duration: 0.005, ease: "none" }, 0.05)
-    tl.to(stickyRef.current, { x: -2, y: 1, duration: 0.005, ease: "none" }, 0.055)
-    tl.to(stickyRef.current, { x: 1, y: 0, duration: 0.005, ease: "none" }, 0.06)
-    tl.to(stickyRef.current, { x: 0, y: 0, duration: 0.01, ease: "power2.out" }, 0.065)
+    tlScrub.to(".hero-seam", { opacity: 1.0, duration: 0.05, ease: "power1.in" }, 0.05)
+    tlScrub.to(".hero-seam", { opacity: 0.85, duration: 0.05, ease: "power1.out" }, 0.1)
+    tlScrub.to(".hero-seam", { opacity: 1.0, duration: 0.05, ease: "power1.in" }, 0.15)
+    tlScrub.to(".hero-seam", { width: "2px", backgroundColor: "rgba(255, 255, 255, 0.8)", boxShadow: "0 0 20px rgba(255, 255, 255, 0.25)", duration: 0.1, ease: "power2.inOut" }, 0)
 
-    // Seam pulse
-    tl.to(".hero-seam", { opacity: 1.0, duration: 0.015, ease: "power1.in" }, 0.03)
-    tl.to(".hero-seam", { opacity: 0.85, duration: 0.01, ease: "power1.out" }, 0.045)
-    tl.to(".hero-seam", { opacity: 1.0, duration: 0.005, ease: "power1.in" }, 0.05)
+    // --- PHASE 4: OVERLAP & SEAM FRACTURE ---
+    tlScrub.to(".canvas-left", { clipPath: "inset(0 25% 0 0)", duration: 0.4, ease: "none" }, 0.2)
+    tlScrub.to(".canvas-right", { clipPath: "inset(0 0 0 25%)", duration: 0.4, ease: "none" }, 0.2)
+    tlScrub.set(".canvas-right", { mixBlendMode: "screen" }, 0.3)
+    tlScrub.to(".hero-seam", { opacity: 0, width: "0px", duration: 0.2, ease: "none" }, 0.4)
 
-    // Seam Intensifies
-    tl.to(".hero-seam", {
-      width: "2px",
-      backgroundColor: "rgba(255, 255, 255, 0.8)",
-      boxShadow: "0 0 20px rgba(255, 255, 255, 0.25)",
-      duration: 0.05,
-      ease: "power2.inOut"
-    }, 0)
-
-    // --- PHASE 4: OVERLAP & SEAM FRACTURE (5% -> 25%) ---
-    // WebGL Canvas overlap
-    tl.to(".canvas-left", {
-      clipPath: "inset(0 25% 0 0)",
-      duration: 0.20,
-      ease: "none"
-    }, 0.05)
-    
-    tl.to(".canvas-right", {
-      clipPath: "inset(0 0 0 25%)",
-      duration: 0.20,
-      ease: "none"
-    }, 0.05)
-
-    // Apply mix-blend-mode to right canvas container
-    tl.set(".canvas-right", { mixBlendMode: "screen" }, 0.10)
-
-    // Seam Dissolves
-    tl.to(".hero-seam", {
-      opacity: 0,
-      width: "0px",
-      duration: 0.08,
-      ease: "none"
-    }, 0.12)
-
-    // Fracture lines animation
     const fractures = document.querySelectorAll('.fracture-line')
     fractures.forEach((frac, i) => {
-      tl.to(frac, {
-        width: i % 2 === 0 ? "120px" : "80px",
-        opacity: 0,
-        duration: 0.07,
-        ease: "power2.out"
-      }, 0.05 + (i * 0.01))
+      tlScrub.to(frac, { width: i % 2 === 0 ? "120px" : "80px", opacity: 0, duration: 0.2, ease: "power2.out" }, 0.2 + (i * 0.05))
     })
 
-    // --- PHASE 5: MOSAIC DISSOLUTION (25% -> 70%) ---
-    // Dim the entire canvases container
-    tl.to(".hero-canvases-container", {
-      filter: "brightness(0.4)",
-      duration: 0.35,
-      ease: "none"
-    }, 0.25)
-
-    // Stagger mosaic tiles based on calculated activation progress
-    const tiles = document.querySelectorAll(".mosaic-tile")
-    tiles.forEach(tile => {
-      const startP = parseFloat(tile.getAttribute("data-activation") || "0.25")
-      // Tile animation: opacity 0->1
-      tl.to(tile, {
-        opacity: 1,
-        duration: 0.1, // 10% of total scroll
-        ease: tile.getAttribute("data-easing") || "power1.inOut"
-      }, startP)
-      
-      // Box shadow flash explicit tweens
-      tl.to(tile, {
-        boxShadow: "inset 0 0 3px rgba(255,255,255,0.5)",
-        duration: 0.015,
-        ease: "power1.in"
-      }, startP)
-      
-      tl.to(tile, {
-        boxShadow: "inset 0 0 0px rgba(255,255,255,0)",
-        duration: 0.015,
-        ease: "power1.out"
-      }, startP + 0.015)
+    // --- TIMELINE 2: TRIGGERED BLEED (Unstoppable Event) ---
+    // This fires automatically once the user scrolls past the overlap phase.
+    const tlBleed = gsap.timeline({
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top -50vh", // Triggers precisely when the scrubbed timeline ends
+        toggleActions: "play none none reverse", // Plays completely, reverses if you scroll all the way back up
+      }
     })
 
-    // --- PHASE 6: SECTION 2 REVEAL (65% -> 100%) ---
-    tl.to(".s2-label", { opacity: 1, duration: 0.1, ease: "power2.out" }, 0.65)
-    
-    tl.fromTo(".s2-headline", 
-      { opacity: 0, y: 40 },
-      { opacity: 1, y: 0, duration: 0.15, ease: "power3.out" }, 
-      0.70
+    // --- PHASE 5: THE SYSTEM BLEED ---
+    tlBleed.to(".corruption-layer", { opacity: 1, duration: 1.2, ease: "power2.inOut" }, 0)
+    tlBleed.fromTo(".matrix-rain-container", 
+      { "--bleed-progress": "-30%" }, 
+      { "--bleed-progress": "100%", duration: 1.5, ease: "power2.inOut" }, 
+      0
     )
-    
-    tl.fromTo(".s2-subheadline", 
-      { opacity: 0, y: 24 },
-      { opacity: 1, y: 0, duration: 0.12, ease: "power3.out" }, 
-      0.78
-    )
-    
-    tl.fromTo(".s2-ctas", 
-      { opacity: 0, y: 16 },
-      { opacity: 1, y: 0, duration: 0.10, ease: "power3.out" }, 
-      0.85
-    )
-    
-    tl.to(".s2-stats", { opacity: 1, duration: 0.1, ease: "power2.out" }, 0.90)
+
+    // --- PHASE 6: SECTION 2 REVEAL ---
+    tlBleed.to(".s2-label", { opacity: 1, duration: 0.4, ease: "power2.out" }, 1.0)
+    tlBleed.fromTo(".s2-headline", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 1.1)
+    tlBleed.fromTo(".s2-subheadline", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 1.3)
+    tlBleed.fromTo(".s2-ctas", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 1.5)
+    tlBleed.to(".s2-stats", { opacity: 1, duration: 0.4, ease: "power2.out" }, 1.7)
 
   }, { scope: containerRef })
 
@@ -268,7 +197,6 @@ export default function SplitHero() {
                   description="Brand systems with signal."
                   subDescription="Identity, campaigns, film, and creative direction at global brand level."
                   isHovered={hoveredPanel === "left"}
-                  scrollLocked={isLockedForLayout}
                 />
               </div>
             </SplitHeroPanel>
@@ -290,15 +218,27 @@ export default function SplitHero() {
                   description="Software that can carry the business."
                   subDescription="Platforms, intelligent systems, and architecture built for real-world use."
                   isHovered={hoveredPanel === "right"}
-                  scrollLocked={isLockedForLayout}
                 />
               </div>
             </SplitHeroPanel>
           </div>
         </div>
 
-        {/* Tile Grid */}
-        <MosaicTransitionOverlay />
+        {/* Layer 1: The Corruption Layer (Darkens the canvases) */}
+        <div className="corruption-layer absolute inset-0 z-[35] bg-black opacity-0 pointer-events-none" />
+
+        {/* Layer 2: The Matrix Layer (The Top-Down System Bleed) */}
+        {/* We use a custom CSS variable --bleed-progress (from 0 to 100) controlled by GSAP */}
+        <div 
+          className="matrix-rain-container absolute inset-0 z-[40] pointer-events-none overflow-hidden"
+          style={{ 
+            "--bleed-progress": "0%",
+            maskImage: "linear-gradient(to bottom, black 0%, black var(--bleed-progress), transparent calc(var(--bleed-progress) + 30vh), transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, black 0%, black var(--bleed-progress), transparent calc(var(--bleed-progress) + 30vh), transparent 100%)"
+          } as React.CSSProperties}
+        >
+          <FallingPattern color="rgba(255,255,255,0.4)" blurIntensity="1em" density={1} duration={150} className="dark bg-black/40 backdrop-blur-md" />
+        </div>
 
         {/* Section 2 Content Revealed Above Tiles */}
         <div className="absolute inset-0 z-[45] flex items-center justify-center pointer-events-none">

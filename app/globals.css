@@ -61,7 +61,7 @@
 
 .dark {
   /* Semantic Colors - Dark Mode */
-  --background: var(--mozaic-black);
+  --background: oklch(0 0 0); /* Black as per FallingPattern requirement */
   --foreground: var(--mozaic-white);
   
   --card: var(--mozaic-black);

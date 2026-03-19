@@ -108,7 +108,7 @@ export const SharedBackground = forwardRef<HTMLDivElement, { hoveredPanel: "left
           style={{ 
             clipPath: isLocked ? undefined : rightClip,
             transition: isLocked ? "none" : "clip-path 500ms cubic-bezier(0.16, 1, 0.3, 1)",
-            opacity: isMobile ? 0.5 : 1
+            opacity: isMobile ? 0.5 : (isLocked ? undefined : 1)
           }}
         >
           <div data-us-project="whwOGlfJ5Rz2rHaEUgHl"></div>
