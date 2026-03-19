@@ -14,23 +14,22 @@ export const metadata: Metadata = {
   title: "MOZAIC - Complete Digital Systems. One Team.",
   description:
     "Creative, development, and infrastructure—integrated. Full-stack digital studio for brands ready to move faster.",
-  generator: "v0.app",
   icons: {
     icon: [
       {
-        url: "/icon-light-32x32.png",
+        url: "/",
         media: "(prefers-color-scheme: light)",
       },
       {
-        url: "/icon-dark-32x32.png",
+        url: "",
         media: "(prefers-color-scheme: dark)",
       },
       {
-        url: "/icon.svg",
+        url: "",
         type: "image/svg+xml",
       },
     ],
-    apple: "/apple-icon.png",
+    apple: "/",
   },
 }
 

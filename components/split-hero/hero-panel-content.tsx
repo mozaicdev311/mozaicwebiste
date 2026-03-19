@@ -8,7 +8,6 @@ interface HeroPanelContentProps {
   title: string
   description: string
   subDescription: string
-  isHovered: boolean
 }
 
 export function HeroPanelContent({
@@ -17,7 +16,6 @@ export function HeroPanelContent({
   title,
   description,
   subDescription,
-  isHovered,
 }: HeroPanelContentProps) {
   const isLeft = side === "left"
 
@@ -45,18 +43,17 @@ export function HeroPanelContent({
       {/* Title */}
       <h2
         className="text-white text-[28px] lg:text-[36px] font-medium leading-none mb-3 tracking-[0.02em]"
-        style={{ fontFamily: "sans-serif" }} // Using generic sans-serif as per spec, assuming global config handles it
+        style={{ fontFamily: "sans-serif" }}
       >
         {title}
       </h2>
 
-      {/* Hover Descriptions */}
+      {/* Hover Descriptions (Controlled by GSAP) */}
       <div className="relative h-20 overflow-visible">
         <div
           className={cn(
-            "absolute top-0 w-full transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)]",
-            isLeft ? "left-0" : "right-0",
-            isHovered ? "opacity-100 translate-y-0 delay-150" : "opacity-0 translate-y-2"
+            "panel-desc absolute top-0 w-full opacity-0 translate-y-2",
+            isLeft ? "left-0" : "right-0"
           )}
         >
           <p className="text-white/50 text-[13px] font-mono leading-[1.6] mb-1">

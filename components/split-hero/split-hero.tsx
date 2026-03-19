@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useRef } from "react"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useGSAP } from "@gsap/react"
@@ -17,142 +17,254 @@ export default function SplitHero() {
   const containerRef = useRef<HTMLDivElement>(null)
   const stickyRef = useRef<HTMLDivElement>(null)
   
-  const [hoveredPanel, setHoveredPanel] = useState<"left" | "right" | null>(null)
-  const [isLocked, setIsLocked] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
-
   // HUD States
   const systemTextRef = useRef<HTMLSpanElement>(null)
   const progressBarsRef = useRef<HTMLDivElement>(null)
-  const isLockedRef = useRef(false)
-  const [isLockedForLayout, setIsLockedForLayout] = useState(false)
-
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 1024)
-    checkMobile()
-    window.addEventListener("resize", checkMobile)
-    return () => window.removeEventListener("resize", checkMobile)
-  }, [])
 
   useGSAP(() => {
-    if (isMobile) return // No scroll anims on mobile
+    let mm = gsap.matchMedia()
 
-    // --- TIMELINE 1: SCRUBBED OVERLAP (0% to 50vh) ---
-    // This timeline remains tied to the scroll wheel so the initial lock/overlap feels interactive.
-    const tlScrub = gsap.timeline({
-      scrollTrigger: {
-        trigger: containerRef.current,
-        start: "top top",
-        end: "top -50vh", // Only scrubs for the first 50vh of the container
-        scrub: true,
-        onUpdate: (self) => {
-          const p = self.progress
-          
-          if (p > 0 && !isLockedRef.current) {
-            isLockedRef.current = true
-            setIsLockedForLayout(true)
-            setHoveredPanel(null)
-          }
-          if (p === 0 && isLockedRef.current) {
-            isLockedRef.current = false
-            setIsLockedForLayout(false)
-          }
+    mm.add("(min-width: 1024px)", () => {
+      // Base Desktop Setup - The Mozaic Lock
+      gsap.set(containerRef.current, {
+        "--v1": "50%", "--v2": "50%", "--v3": "50%",
+        "--v4": "50%", "--v5": "50%", "--v6": "50%"
+      })
 
-          // HUD Text Updates
-          if (systemTextRef.current) {
-            if (p < 0.2) systemTextRef.current.textContent = "SYSTEM.ACTIVE"
-            else if (p >= 0.2 && p < 0.5) systemTextRef.current.textContent = "◉ SYNTHESIS.INIT"
-            else if (p >= 0.5 && p < 0.9) systemTextRef.current.textContent = "◉ MERGING..."
-            else systemTextRef.current.textContent = "SYSTEM.UNIFIED"
-          }
+      const leftPolygon = "polygon(0% 0%, var(--v1) 0%, var(--v1) 16.666%, var(--v2) 16.666%, var(--v2) 33.333%, var(--v3) 33.333%, var(--v3) 50%, var(--v4) 50%, var(--v4) 66.666%, var(--v5) 66.666%, var(--v5) 83.333%, var(--v6) 83.333%, var(--v6) 100%, 0% 100%)"
+      const rightPolygon = "polygon(100% 0%, var(--v1) 0%, var(--v1) 16.666%, var(--v2) 16.666%, var(--v2) 33.333%, var(--v3) 33.333%, var(--v3) 50%, var(--v4) 50%, var(--v4) 66.666%, var(--v5) 66.666%, var(--v5) 83.333%, var(--v6) 83.333%, var(--v6) 100%, 100% 100%)"
 
-          if (progressBarsRef.current) {
-            const bars = Math.floor(p * 8)
-            const children = progressBarsRef.current.children
-            for (let i = 0; i < children.length; i++) {
-              (children[i] as HTMLElement).style.opacity = i < bars ? "0.8" : "0.3"
+      gsap.set('.panel-left-wrapper', { clipPath: leftPolygon })
+      gsap.set('.panel-right-wrapper', { clipPath: rightPolygon })
+      gsap.set('.canvas-left', { clipPath: leftPolygon })
+      gsap.set('.canvas-right', { clipPath: rightPolygon })
+      
+      gsap.set('.hero-seam', { left: '50%' })
+      gsap.set('.matrix-rain-container', { "--bleed-progress": "0%" })
+      gsap.set('.s2-mobile-content', { opacity: 0 })
+
+      // Handle hover interactions purely via GSAP CSS Variables
+      let isLocked = false
+      
+      const onMouseEnterLeft = () => {
+        if (isLocked) return
+        gsap.to(containerRef.current, {
+          "--v1": "58%", "--v2": "58%", "--v3": "58%",
+          "--v4": "58%", "--v5": "58%", "--v6": "58%",
+          duration: 0.5, ease: 'power3.out'
+        })
+        gsap.to('.hero-seam', { left: '58%', duration: 0.5, ease: 'power3.out' })
+        gsap.to('.panel-left-wrapper .panel-overlay', { backgroundColor: 'rgba(0,0,0,0)', duration: 0.4 })
+        gsap.to('.panel-right-wrapper .panel-overlay', { backgroundColor: 'rgba(0,0,0,0.4)', duration: 0.4 })
+        gsap.to('.panel-left-wrapper .panel-desc', { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out', delay: 0.1 })
+      }
+
+      const onMouseEnterRight = () => {
+        if (isLocked) return
+        gsap.to(containerRef.current, {
+          "--v1": "42%", "--v2": "42%", "--v3": "42%",
+          "--v4": "42%", "--v5": "42%", "--v6": "42%",
+          duration: 0.5, ease: 'power3.out'
+        })
+        gsap.to('.hero-seam', { left: '42%', duration: 0.5, ease: 'power3.out' })
+        gsap.to('.panel-left-wrapper .panel-overlay', { backgroundColor: 'rgba(0,0,0,0.4)', duration: 0.4 })
+        gsap.to('.panel-right-wrapper .panel-overlay', { backgroundColor: 'rgba(0,0,0,0)', duration: 0.4 })
+        gsap.to('.panel-right-wrapper .panel-desc', { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out', delay: 0.1 })
+      }
+
+      const onMouseLeave = () => {
+        if (isLocked) return
+        gsap.to(containerRef.current, {
+          "--v1": "50%", "--v2": "50%", "--v3": "50%",
+          "--v4": "50%", "--v5": "50%", "--v6": "50%",
+          duration: 0.5, ease: 'power3.out'
+        })
+        gsap.to('.hero-seam', { left: '50%', duration: 0.5, ease: 'power3.out' })
+        gsap.to('.panel-overlay', { backgroundColor: 'rgba(0,0,0,0.2)', duration: 0.4 })
+        gsap.to('.panel-desc', { opacity: 0, y: 8, duration: 0.3, ease: 'power2.in' })
+      }
+
+      const leftPanelEl = document.querySelector('.panel-left-wrapper')
+      const rightPanelEl = document.querySelector('.panel-right-wrapper')
+      
+      leftPanelEl?.addEventListener('mouseenter', onMouseEnterLeft)
+      leftPanelEl?.addEventListener('mouseleave', onMouseLeave)
+      rightPanelEl?.addEventListener('mouseenter', onMouseEnterRight)
+      rightPanelEl?.addEventListener('mouseleave', onMouseLeave)
+
+      // ==========================================
+      // THE MASTER TIMELINE (0 - 150vh Scrollable)
+      // ==========================================
+      const masterTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 1.2, // Adds the physical "drag" weight with Lenis
+          onUpdate: (self) => {
+            const p = self.progress
+            const sysTextEl = document.querySelector('.system-status-text')
+            
+            // Handle State Switching Manually
+            if (p > 0.05 && !isLocked) {
+              isLocked = true
+              gsap.set('.panel-container', { cursor: 'default' })
+              gsap.to(containerRef.current, {
+                "--v1": "50%", "--v2": "50%", "--v3": "50%",
+                "--v4": "50%", "--v5": "50%", "--v6": "50%",
+                duration: 0.3
+              })
+              gsap.to('.hero-seam', { left: '50%', duration: 0.3 })
+              gsap.to('.panel-desc', { opacity: 0, duration: 0.2 })
+            } else if (p <= 0.05 && isLocked) {
+              isLocked = false
+              gsap.set('.panel-container', { cursor: 'pointer' })
+            }
+
+            // HUD Diagnostics (Engineered Precision)
+            if (sysTextEl) {
+              if (p < 0.1) sysTextEl.textContent = "SYSTEM.ACTIVE"
+              else if (p >= 0.1 && p < 0.2) sysTextEl.textContent = "SYSTEM.SYNC_INIT"
+              else if (p >= 0.2 && p < 0.4) sysTextEl.textContent = "WEAVING_MATRICES"
+              else if (p >= 0.4 && p < 0.7) sysTextEl.textContent = "UNIFICATION_PHASE"
+              else sysTextEl.textContent = "SYSTEM.UNIFIED"
+            }
+
+            const barsContainer = document.querySelector('.progress-bars')
+            if (barsContainer) {
+              const bars = Math.floor(p * 8)
+              const children = barsContainer.children
+              for (let i = 0; i < children.length; i++) {
+                (children[i] as HTMLElement).style.opacity = i < bars ? "0.8" : "0.3"
+              }
             }
           }
         }
+      })
+
+      // === PHASE 1: THE SLICING (0% - 20%) ===
+      // Hide standard UI elements gracefully
+      masterTl.to(".hero-panel-content, .panel-bracket, .scroll-indicator", { opacity: 0, duration: 0.1, ease: "power2.inOut" }, 0)
+      
+      // The Seam gracefully fades out to prepare for the weave
+      masterTl.to(".hero-seam", { opacity: 0, duration: 0.1, ease: "power2.out" }, 0.05)
+
+
+      // === PHASE 2: THE MOZAIC WEAVE (20% - 50%) ===
+      const weaveStart = 0.15
+      const weaveDuration = 0.25
+      
+      // Staggered interlocking of the 6 bands.
+      // Left pushes right on bands 1, 3, 5. Right pushes left on bands 2, 4, 6.
+      masterTl.to(containerRef.current, { "--v1": "100%", duration: weaveDuration, ease: "power3.inOut" }, weaveStart)
+      masterTl.to(containerRef.current, { "--v2": "0%",   duration: weaveDuration, ease: "power3.inOut" }, weaveStart + 0.03)
+      masterTl.to(containerRef.current, { "--v3": "100%", duration: weaveDuration, ease: "power3.inOut" }, weaveStart + 0.06)
+      masterTl.to(containerRef.current, { "--v4": "0%",   duration: weaveDuration, ease: "power3.inOut" }, weaveStart + 0.09)
+      masterTl.to(containerRef.current, { "--v5": "100%", duration: weaveDuration, ease: "power3.inOut" }, weaveStart + 0.12)
+      masterTl.to(containerRef.current, { "--v6": "0%",   duration: weaveDuration, ease: "power3.inOut" }, weaveStart + 0.15)
+
+
+      // === PHASE 3: THE BLEED (50% - 75%) ===
+      const bleedStart = 0.5
+      
+      masterTl.to(".corruption-layer", { opacity: 1, duration: 0.2, ease: "none" }, bleedStart)
+      
+      // The rain is dragged down by the user
+      masterTl.fromTo(".matrix-rain-container", 
+        { "--bleed-progress": "-30%" }, 
+        { "--bleed-progress": "100%", duration: 0.25, ease: "none" }, 
+        bleedStart
+      )
+
+      // === PHASE 4: THE REBIRTH (75% - 100%) ===
+      const rebirthStart = 0.75
+
+      // Cinematic boot-up of Section 2 text
+      masterTl.to(".s2-label", { opacity: 1, duration: 0.05, ease: "none" }, rebirthStart)
+      
+      masterTl.fromTo(".s2-headline", 
+        { opacity: 0, y: 60, scale: 0.95, filter: "blur(10px)" }, 
+        { opacity: 1, y: 0, scale: 1, filter: "blur(0px)", duration: 0.15, ease: "power2.out" }, 
+        rebirthStart + 0.02
+      )
+      
+      masterTl.fromTo(".s2-subheadline", 
+        { opacity: 0, y: 40, filter: "blur(5px)" }, 
+        { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.1, ease: "power2.out" }, 
+        rebirthStart + 0.08
+      )
+      
+      masterTl.fromTo(".s2-ctas", 
+        { opacity: 0, y: 20 }, 
+        { opacity: 1, y: 0, duration: 0.1, ease: "power2.out" }, 
+        rebirthStart + 0.12
+      )
+      
+      masterTl.to(".s2-stats", { opacity: 1, duration: 0.1, ease: "power2.out" }, rebirthStart + 0.15)
+
+      return () => {
+        leftPanelEl?.removeEventListener('mouseenter', onMouseEnterLeft)
+        leftPanelEl?.removeEventListener('mouseleave', onMouseLeave)
+        rightPanelEl?.removeEventListener('mouseenter', onMouseEnterRight)
+        rightPanelEl?.removeEventListener('mouseleave', onMouseLeave)
       }
     })
 
-    // --- PHASE 3: SNAP & LOCK ---
-    tlScrub.to(".hero-panel-content, .panel-bracket, .scroll-indicator", { opacity: 0, duration: 0.1, ease: "power2.inOut" }, 0)
-    tlScrub.to(stickyRef.current, { x: 1, y: -1, duration: 0.02, ease: "none" }, 0.1)
-    tlScrub.to(stickyRef.current, { x: -2, y: 1, duration: 0.02, ease: "none" }, 0.12)
-    tlScrub.to(stickyRef.current, { x: 1, y: 0, duration: 0.02, ease: "none" }, 0.14)
-    tlScrub.to(stickyRef.current, { x: 0, y: 0, duration: 0.04, ease: "power2.out" }, 0.16)
-
-    tlScrub.to(".hero-seam", { opacity: 1.0, duration: 0.05, ease: "power1.in" }, 0.05)
-    tlScrub.to(".hero-seam", { opacity: 0.85, duration: 0.05, ease: "power1.out" }, 0.1)
-    tlScrub.to(".hero-seam", { opacity: 1.0, duration: 0.05, ease: "power1.in" }, 0.15)
-    tlScrub.to(".hero-seam", { width: "2px", backgroundColor: "rgba(255, 255, 255, 0.8)", boxShadow: "0 0 20px rgba(255, 255, 255, 0.25)", duration: 0.1, ease: "power2.inOut" }, 0)
-
-    // --- PHASE 4: OVERLAP & SEAM FRACTURE ---
-    tlScrub.to(".canvas-left", { clipPath: "inset(0 25% 0 0)", duration: 0.4, ease: "none" }, 0.2)
-    tlScrub.to(".canvas-right", { clipPath: "inset(0 0 0 25%)", duration: 0.4, ease: "none" }, 0.2)
-    tlScrub.set(".canvas-right", { mixBlendMode: "screen" }, 0.3)
-    tlScrub.to(".hero-seam", { opacity: 0, width: "0px", duration: 0.2, ease: "none" }, 0.4)
-
-    const fractures = document.querySelectorAll('.fracture-line')
-    fractures.forEach((frac, i) => {
-      tlScrub.to(frac, { width: i % 2 === 0 ? "120px" : "80px", opacity: 0, duration: 0.2, ease: "power2.out" }, 0.2 + (i * 0.05))
+    mm.add("(max-width: 1023px)", () => {
+      // Mobile - simpler static configuration.
+      gsap.set('.s2-mobile-content', { opacity: 1 })
+      gsap.set('.matrix-rain-container', { "--bleed-progress": "100%" })
+      gsap.set('.corruption-layer', { opacity: 0.6 })
+      gsap.set('.hero-seam', { display: 'none' })
     })
 
-    // --- TIMELINE 2: TRIGGERED BLEED (Unstoppable Event) ---
-    // This fires automatically once the user scrolls past the overlap phase.
-    const tlBleed = gsap.timeline({
-      scrollTrigger: {
-        trigger: containerRef.current,
-        start: "top -50vh", // Triggers precisely when the scrubbed timeline ends
-        toggleActions: "play none none reverse", // Plays completely, reverses if you scroll all the way back up
-      }
-    })
-
-    // --- PHASE 5: THE SYSTEM BLEED ---
-    tlBleed.to(".corruption-layer", { opacity: 1, duration: 1.2, ease: "power2.inOut" }, 0)
-    tlBleed.fromTo(".matrix-rain-container", 
-      { "--bleed-progress": "-30%" }, 
-      { "--bleed-progress": "100%", duration: 1.5, ease: "power2.inOut" }, 
-      0
-    )
-
-    // --- PHASE 6: SECTION 2 REVEAL ---
-    tlBleed.to(".s2-label", { opacity: 1, duration: 0.4, ease: "power2.out" }, 1.0)
-    tlBleed.fromTo(".s2-headline", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 1.1)
-    tlBleed.fromTo(".s2-subheadline", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 1.3)
-    tlBleed.fromTo(".s2-ctas", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 1.5)
-    tlBleed.to(".s2-stats", { opacity: 1, duration: 0.4, ease: "power2.out" }, 1.7)
-
+    return () => mm.revert()
   }, { scope: containerRef })
 
-  // Calculate panel widths based on hover state for Phase 1/2
-  const getPanelWidth = (side: "left" | "right") => {
-    if (isMobile) return "100%"
-    if (isLocked) return "calc(50% - 0.5px)"
-    if (hoveredPanel === null) return "calc(50% - 0.5px)"
-    return hoveredPanel === side ? "calc(58% - 0.5px)" : "calc(42% - 0.5px)"
-  }
-
-  // Calculate seam position
-  const getSeamPosition = () => {
-    if (isMobile) return "50%"
-    if (isLocked) return "50%"
-    if (hoveredPanel === null) return "50%"
-    return hoveredPanel === "left" ? "58%" : "42%"
-  }
-
-  if (isMobile) {
-    // Mobile View: Fallback simplified layout
-    return (
-      <main className="relative h-screen overflow-hidden bg-[#0A0A0A]">
-        <SharedBackground hoveredPanel={null} isMobile={true} isLocked={true} />
+  return (
+    <div ref={containerRef} className="hero-scroll-container w-full h-[250vh] bg-[#0A0A0A]">
+      <div ref={stickyRef} className="hero-sticky sticky top-0 w-full h-screen overflow-hidden">
+        
+        <SharedBackground isMobile={false} />
         <SharedTopBar />
         <SharedBottomBar />
-        
-        {/* Mobile immediately shows the headline overlapped */}
-        <div className="absolute inset-0 z-30 flex flex-col items-center justify-center px-6">
+
+        {/* The Seam */}
+        <HeroSeam />
+
+        {/* Desktop Panels */}
+        <div className="panels-container relative w-full h-full flex flex-row z-20 hidden lg:flex">
+          <div className="panel-left-wrapper absolute inset-0">
+            <SplitHeroPanel side="left">
+              <div className="hero-panel-content h-full">
+                <HeroPanelContent
+                  side="left"
+                  marker="── 01"
+                  title="Studio"
+                  description="Brand systems with signal."
+                  subDescription="Identity, campaigns, film, and creative direction at global brand level."
+                />
+              </div>
+            </SplitHeroPanel>
+          </div>
+
+          <div className="panel-right-wrapper absolute inset-0">
+            <SplitHeroPanel side="right">
+              <div className="hero-panel-content h-full">
+                <HeroPanelContent
+                  side="right"
+                  marker="02 ──"
+                  title="Product & Systems"
+                  description="Software that can carry the business."
+                  subDescription="Platforms, intelligent systems, and architecture built for real-world use."
+                />
+              </div>
+            </SplitHeroPanel>
+          </div>
+        </div>
+
+        {/* Mobile View Structure */}
+        <div className="s2-mobile-content absolute inset-0 z-30 flex flex-col items-center justify-center px-6 lg:hidden opacity-0">
           <h2 className="text-[32px] font-bold leading-[1.15] text-center text-white font-serif mb-4">
             Brand, product, and intelligent systems. <br />
             <span className="text-[#00FF66]">Built as one.</span>
@@ -161,74 +273,11 @@ export default function SplitHero() {
             ↓ SCROLL TO EXPLORE
           </div>
         </div>
-      </main>
-    )
-  }
-
-  return (
-    <div ref={containerRef} className="hero-scroll-container w-full h-[250vh] bg-[#0A0A0A]">
-      <div ref={stickyRef} className="hero-sticky sticky top-0 w-full h-screen overflow-hidden">
-        
-        <SharedBackground hoveredPanel={hoveredPanel} isMobile={false} isLocked={isLockedForLayout} />
-        <SharedTopBar />
-        <SharedBottomBar ref={progressBarsRef} />
-
-        {/* The Seam */}
-        <HeroSeam position={getSeamPosition()} isActive={isLockedForLayout} className="hero-seam" />
-
-        {/* Fracture lines (invisible initially, generated for GSAP) */}
-        {/* The fracture lines are now inside HeroSeam component */}
-
-        {/* Panels */}
-        <div className="panels-container relative w-full h-full flex flex-row z-20">
-          <div className="relative h-full transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]" style={{ width: getPanelWidth("left") }}>
-            <SplitHeroPanel
-              side="left"
-              isHovered={hoveredPanel === "left"}
-              isLocked={isLockedForLayout}
-              onHover={() => { if (!isLockedRef.current) setHoveredPanel("left") }}
-              onHoverEnd={() => { if (!isLockedRef.current) setHoveredPanel(null) }}
-            >
-              <div className="hero-panel-content">
-                <HeroPanelContent
-                  side="left"
-                  marker="── 01"
-                  title="Studio"
-                  description="Brand systems with signal."
-                  subDescription="Identity, campaigns, film, and creative direction at global brand level."
-                  isHovered={hoveredPanel === "left"}
-                />
-              </div>
-            </SplitHeroPanel>
-          </div>
-
-          <div className="relative h-full transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]" style={{ width: getPanelWidth("right") }}>
-            <SplitHeroPanel
-              side="right"
-              isHovered={hoveredPanel === "right"}
-              isLocked={isLockedForLayout}
-              onHover={() => { if (!isLockedRef.current) setHoveredPanel("right") }}
-              onHoverEnd={() => { if (!isLockedRef.current) setHoveredPanel(null) }}
-            >
-              <div className="hero-panel-content">
-                <HeroPanelContent
-                  side="right"
-                  marker="02 ──"
-                  title="Product & Systems"
-                  description="Software that can carry the business."
-                  subDescription="Platforms, intelligent systems, and architecture built for real-world use."
-                  isHovered={hoveredPanel === "right"}
-                />
-              </div>
-            </SplitHeroPanel>
-          </div>
-        </div>
 
         {/* Layer 1: The Corruption Layer (Darkens the canvases) */}
         <div className="corruption-layer absolute inset-0 z-[35] bg-black opacity-0 pointer-events-none" />
 
         {/* Layer 2: The Matrix Layer (The Top-Down System Bleed) */}
-        {/* We use a custom CSS variable --bleed-progress (from 0 to 100) controlled by GSAP */}
         <div 
           className="matrix-rain-container absolute inset-0 z-[40] pointer-events-none overflow-hidden"
           style={{ 
@@ -241,7 +290,7 @@ export default function SplitHero() {
         </div>
 
         {/* Section 2 Content Revealed Above Tiles */}
-        <div className="absolute inset-0 z-[45] flex items-center justify-center pointer-events-none">
+        <div className="absolute inset-0 z-[45] items-center justify-center pointer-events-none hidden lg:flex">
           <div className="max-w-[720px] w-full px-6 text-center">
             <div className="s2-label opacity-0 text-white/40 font-mono text-[10px] tracking-[0.15em] mb-12">
               ── 002 · THE PROPOSITION
@@ -272,7 +321,7 @@ export default function SplitHero() {
         </div>
 
         {/* Scroll Indicator */}
-        <div className="scroll-indicator">
+        <div className="scroll-indicator hidden lg:block">
           <ScrollIndicator />
         </div>
       </div>

@@ -3,8 +3,8 @@
 import { useEffect, forwardRef } from "react"
 import Image from "next/image"
 
-export const SharedBackground = forwardRef<HTMLDivElement, { hoveredPanel: "left" | "right" | null, isMobile: boolean, isLocked: boolean }>(
-  ({ hoveredPanel, isMobile, isLocked }, ref) => {
+export const SharedBackground = forwardRef<HTMLDivElement, { isMobile: boolean }>(
+  ({ isMobile }, ref) => {
     useEffect(() => {
       const embedScript = document.createElement("script")
       embedScript.type = "text/javascript"
@@ -43,60 +43,44 @@ export const SharedBackground = forwardRef<HTMLDivElement, { hoveredPanel: "left
       `
       document.head.appendChild(style)
 
-      const hideBranding = () => {
-        const links = document.querySelectorAll('a[href*="unicorn.studio"]')
-        links.forEach(el => el.remove())
-
-        const containers = document.querySelectorAll('[data-us-project]')
-        containers.forEach(container => {
-          const children = container.querySelectorAll('*')
-          children.forEach(el => {
-            if (el.tagName === 'CANVAS' || el.hasAttribute('data-us-project')) return
-            const text = (el.textContent || "").toLowerCase()
-            if (text.includes("made with") && text.includes("unicorn")) {
-              el.remove()
-            }
-          })
+      const observer = new MutationObserver((mutations) => {
+        let shouldHide = false
+        mutations.forEach(m => {
+          if (m.addedNodes.length > 0) shouldHide = true
         })
-      }
+        if (shouldHide) {
+          const links = document.querySelectorAll('a[href*="unicorn.studio"]')
+          links.forEach(el => el.remove())
 
-      hideBranding()
-      const interval = setInterval(hideBranding, 50)
-      setTimeout(hideBranding, 500)
-      setTimeout(hideBranding, 1000)
-      setTimeout(hideBranding, 2000)
-      setTimeout(hideBranding, 5000)
+          const containers = document.querySelectorAll('[data-us-project]')
+          containers.forEach(container => {
+            const children = container.querySelectorAll('*')
+            children.forEach(el => {
+              if (el.tagName === 'CANVAS' || el.hasAttribute('data-us-project')) return
+              const text = (el.textContent || "").toLowerCase()
+              if (text.includes("made with") && text.includes("unicorn")) {
+                el.remove()
+              }
+            })
+          })
+        }
+      })
+
+      observer.observe(document.body, { childList: true, subtree: true })
 
       return () => {
-        clearInterval(interval)
+        observer.disconnect()
         document.head.removeChild(embedScript)
         document.head.removeChild(style)
       }
     }, [])
 
-    let leftClip = "inset(0 50% 0 0)"
-    let rightClip = "inset(0 0 0 50%)"
-
-    if (!isMobile && !isLocked) {
-      if (hoveredPanel === "left") {
-        leftClip = "inset(0 42% 0 0)"
-        rightClip = "inset(0 0 0 58%)"
-      } else if (hoveredPanel === "right") {
-        leftClip = "inset(0 58% 0 0)"
-        rightClip = "inset(0 0 0 42%)"
-      }
-    } else if (isMobile) {
-      leftClip = "inset(0 0 0 0)"
-      rightClip = "inset(0 0 0 0)"
-    }
-
     return (
       <div ref={ref} className="absolute inset-0 z-0 pointer-events-none bg-[#0A0A0A] hero-canvases-container">
         <div 
-          className="canvas-left absolute inset-0 ease-[cubic-bezier(0.16,1,0.3,1)]"
+          className="canvas-left absolute inset-0"
           style={{ 
-            clipPath: isLocked ? undefined : leftClip,
-            transition: isLocked ? "none" : "clip-path 500ms cubic-bezier(0.16, 1, 0.3, 1)",
+            clipPath: isMobile ? "inset(0 0 0 0)" : "inset(0 50% 0 0)",
             opacity: isMobile ? 0.5 : 1
           }}
         >
@@ -104,11 +88,10 @@ export const SharedBackground = forwardRef<HTMLDivElement, { hoveredPanel: "left
         </div>
 
         <div 
-          className="canvas-right absolute inset-0 ease-[cubic-bezier(0.16,1,0.3,1)]"
+          className="canvas-right absolute inset-0"
           style={{ 
-            clipPath: isLocked ? undefined : rightClip,
-            transition: isLocked ? "none" : "clip-path 500ms cubic-bezier(0.16, 1, 0.3, 1)",
-            opacity: isMobile ? 0.5 : (isLocked ? undefined : 1)
+            clipPath: isMobile ? "inset(0 0 0 0)" : "inset(0 0 0 50%)",
+            opacity: isMobile ? 0.5 : 1
           }}
         >
           <div data-us-project="whwOGlfJ5Rz2rHaEUgHl"></div>
