@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Unicorn Studio Test</title>
+    <script src="https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v1.4.33/dist/unicornStudio.umd.js"></script>
+    <style>
+        body { background: #0A0A0A; margin: 0; }
+        .container { width: 500px; height: 500px; border: 1px solid red; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="project1" data-us-project="OMzqyUv6M3kSnv0JeAtC"></div>
+    </div>
+    <script>
+        window.addEventListener('load', () => {
+            if (window.UnicornStudio) {
+                window.UnicornStudio.init();
+                console.log('UnicornStudio initialized');
+                console.log('UnicornStudio Object:', window.UnicornStudio);
+            }
+        });
+    </script>
+</body>
+</html>
