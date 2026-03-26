@@ -1,101 +1,42 @@
 "use client"
 
-import { useEffect, forwardRef } from "react"
+import { forwardRef } from "react"
 import Image from "next/image"
 
 export const SharedBackground = forwardRef<HTMLDivElement, { isMobile: boolean }>(
   ({ isMobile }, ref) => {
-    useEffect(() => {
-      const embedScript = document.createElement("script")
-      embedScript.type = "text/javascript"
-      embedScript.src = "https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v1.4.33/dist/unicornStudio.umd.js"
-      
-      embedScript.onload = function() {
-         // @ts-ignore
-         if (window.UnicornStudio) {
-           // @ts-ignore
-           window.UnicornStudio.init()
-         }
-      }
-
-      document.head.appendChild(embedScript)
-
-      const style = document.createElement("style")
-      style.textContent = `
-        [data-us-project] {
-          position: absolute !important;
-          top: 0 !important;
-          left: 0 !important;
-          width: 100% !important;
-          height: 100% !important;
-          overflow: hidden !important;
-        }
-        [data-us-project] a[href*="unicorn"],
-        [data-us-project] button[title*="unicorn"],
-        [data-us-project] .unicorn-brand,
-        [data-us-project] [class*="watermark"],
-        a[href*="unicorn.studio"] {
-          display: none !important;
-          visibility: hidden !important;
-          opacity: 0 !important;
-          pointer-events: none !important;
-        }
-      `
-      document.head.appendChild(style)
-
-      const observer = new MutationObserver((mutations) => {
-        let shouldHide = false
-        mutations.forEach(m => {
-          if (m.addedNodes.length > 0) shouldHide = true
-        })
-        if (shouldHide) {
-          const links = document.querySelectorAll('a[href*="unicorn.studio"]')
-          links.forEach(el => el.remove())
-
-          const containers = document.querySelectorAll('[data-us-project]')
-          containers.forEach(container => {
-            const children = container.querySelectorAll('*')
-            children.forEach(el => {
-              if (el.tagName === 'CANVAS' || el.hasAttribute('data-us-project')) return
-              const text = (el.textContent || "").toLowerCase()
-              if (text.includes("made with") && text.includes("unicorn")) {
-                el.remove()
-              }
-            })
-          })
-        }
-      })
-
-      observer.observe(document.body, { childList: true, subtree: true })
-
-      return () => {
-        observer.disconnect()
-        document.head.removeChild(embedScript)
-        document.head.removeChild(style)
-      }
-    }, [])
-
     return (
-      <div ref={ref} className="absolute inset-0 z-0 pointer-events-none bg-[#0A0A0A] hero-canvases-container">
-        <div 
+      <div ref={ref} className="absolute inset-0 z-0 pointer-events-none bg-[#0A0A0A] hero-canvases-container overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(255,255,255,0.16)_0%,rgba(255,255,255,0.04)_32%,rgba(10,10,10,1)_75%)]" />
+
+        <div
           className="canvas-left absolute inset-0"
-          style={{ 
+          style={{
             clipPath: isMobile ? "inset(0 0 0 0)" : "inset(0 50% 0 0)",
-            opacity: isMobile ? 0.5 : 1
+            opacity: isMobile ? 0.5 : 0.92,
           }}
         >
-          <div data-us-project="OMzqyUv6M3kSnv0JeAtC"></div>
+          <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(255,255,255,0.1)_0%,rgba(255,255,255,0.03)_35%,rgba(10,10,10,0.6)_100%)]" />
         </div>
 
-        <div 
+        <div
           className="canvas-right absolute inset-0"
-          style={{ 
+          style={{
             clipPath: isMobile ? "inset(0 0 0 0)" : "inset(0 0 0 50%)",
-            opacity: isMobile ? 0.5 : 1
+            opacity: isMobile ? 0.5 : 0.92,
           }}
         >
-          <div data-us-project="whwOGlfJ5Rz2rHaEUgHl"></div>
+          <div className="absolute inset-0 bg-[linear-gradient(250deg,rgba(255,255,255,0.1)_0%,rgba(255,255,255,0.03)_35%,rgba(10,10,10,0.6)_100%)]" />
         </div>
+
+        <div
+          className="absolute inset-0 opacity-[0.14]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px)",
+            backgroundSize: "48px 48px",
+          }}
+        />
       </div>
     )
   }
@@ -144,8 +85,8 @@ export const SharedBottomBar = forwardRef<HTMLDivElement, {}>(
             <div className="hidden lg:flex gap-1 h-3 items-end progress-bars">
               {Array.from({ length: 8 }).map((_, i) => {
                 return (
-                  <div 
-                    key={i} 
+                  <div
+                    key={i}
                     className="w-1 bg-white/30 transition-opacity duration-200"
                     style={{ height: ((i % 3) + 1) * 4 + "px" }}
                   ></div>
