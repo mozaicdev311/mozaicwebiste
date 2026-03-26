@@ -131,7 +131,7 @@ export function AsciiActor({ className, videoSrc, tuning }: AsciiActorProps) {
           const size = Math.max(1, brightness * step * tuning.squareScale)
           const alpha = Math.min(tuning.maxAlpha, brightness * tuning.alphaMultiplier)
 
-          ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`
+          ctx.fillStyle = `rgba(226, 226, 226, ${alpha})`
           ctx.fillRect(x - size / 2, y - size / 2, size, size)
         }
       }

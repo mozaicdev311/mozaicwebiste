@@ -26,10 +26,10 @@ export function AsciiVitruvianActor({
         desktopYAlign: 0.5,
         mobileYAlign: 0.56,
         sampleDensity: 150,
-        brightnessThreshold: 0.075,
-        squareScale: 0.44,
-        alphaMultiplier: 1.7,
-        maxAlpha: 0.94,
+        brightnessThreshold: 0.085,
+        squareScale: 0.39,
+        alphaMultiplier: 1.45,
+        maxAlpha: 0.78,
       }}
     />
   )

@@ -26,10 +26,10 @@ export function AsciiAtlasActor({
         desktopYAlign: 0.5,
         mobileYAlign: 0.58,
         sampleDensity: 150,
-        brightnessThreshold: 0.08,
-        squareScale: 0.46,
-        alphaMultiplier: 1.8,
-        maxAlpha: 0.96,
+        brightnessThreshold: 0.09,
+        squareScale: 0.4,
+        alphaMultiplier: 1.5,
+        maxAlpha: 0.8,
       }}
     />
   )
