@@ -2,43 +2,10 @@
 
 import { cn } from "@/lib/utils"
 import { AsciiAtlasActor } from "./ascii-atlas-actor"
+import { AsciiVitruvianActor } from "./ascii-vitruvian-actor"
 
 interface HeroActorsLayerProps {
   className?: string
-}
-
-interface ActorVideoBasicProps {
-  className: string
-  desktopSrc: string
-  mobileSrc: string
-  objectPosition: string
-}
-
-function ActorVideoBasic({ className, desktopSrc, mobileSrc, objectPosition }: ActorVideoBasicProps) {
-  return (
-    <div className={cn("hero-actor pointer-events-none absolute inset-0", className)}>
-      <video
-        className="hidden h-full w-full object-contain mix-blend-screen lg:block"
-        src={desktopSrc}
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
-        style={{ objectPosition }}
-      />
-      <video
-        className="h-full w-full object-contain mix-blend-screen lg:hidden"
-        src={mobileSrc}
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
-        style={{ objectPosition }}
-      />
-    </div>
-  )
 }
 
 export function HeroActorsLayer({ className }: HeroActorsLayerProps) {
@@ -46,18 +13,13 @@ export function HeroActorsLayer({ className }: HeroActorsLayerProps) {
     <div className={cn("hero-actors-layer absolute inset-0 z-[15] overflow-hidden pointer-events-none", className)}>
       <div className="hero-actor-left absolute inset-0 flex items-center justify-start pl-[2vw] md:pl-[4vw]">
         <div className="relative h-[88vh] w-[40vw] min-w-[240px] max-w-[700px]">
-          <AsciiAtlasActor />
+          <AsciiAtlasActor className="hero-actor hero-actor-atlas absolute inset-0" />
         </div>
       </div>
 
-      <div className="hero-actor-right absolute inset-0 flex items-center justify-end pr-[2vw] md:pr-[4vw]">
-        <div className="relative h-[84vh] w-[36vw] min-w-[220px] max-w-[620px]">
-          <ActorVideoBasic
-            className="hero-actor-vitruvian"
-            desktopSrc="/media/hero/desktop/vitruvian-desktop.webm"
-            mobileSrc="/media/hero/mobile/vitruvian-mobile.webm"
-            objectPosition="right center"
-          />
+      <div className="hero-actor-right absolute inset-0 flex items-center justify-end pr-[1vw] md:pr-[2vw]">
+        <div className="relative h-[88vh] w-[44vw] min-w-[280px] max-w-[820px]">
+          <AsciiVitruvianActor className="hero-actor hero-actor-vitruvian absolute inset-0" />
         </div>
       </div>
     </div>
