@@ -22,7 +22,7 @@ export default function Section02Problem() {
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
         variants={fadeUp}
-        className="max-w-[1000px] relative z-10"
+        className="mx-auto max-w-[1400px] relative z-10"
       >
         <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-white/10 pb-6 mb-16 gap-4">
           <HudLabel className="text-white/40">SYS.DIAGNOSTIC // 02</HudLabel>
@@ -32,7 +32,7 @@ export default function Section02Problem() {
           </div>
         </div>
         
-        <h2 className="text-[clamp(2.5rem,6vw,5.5rem)] leading-[1.05] tracking-[-0.04em] font-medium mb-16 text-white selection:bg-white selection:text-black">
+        <h2 className="max-w-[12ch] text-[clamp(2.5rem,6vw,5.5rem)] leading-[1.05] tracking-[-0.04em] font-medium mb-16 text-white selection:bg-white selection:text-black">
           Most companies don't need another agency.<br/>
           <span className="text-white/30">They need one system.</span>
         </h2>
