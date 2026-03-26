@@ -1,6 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
+import { AsciiAtlasActor } from "./ascii-atlas-actor"
 
 interface HeroActorsLayerProps {
   className?: string
@@ -45,12 +46,7 @@ export function HeroActorsLayer({ className }: HeroActorsLayerProps) {
     <div className={cn("hero-actors-layer absolute inset-0 z-[15] overflow-hidden pointer-events-none", className)}>
       <div className="hero-actor-left absolute inset-0 flex items-center justify-start pl-[2vw] md:pl-[4vw]">
         <div className="relative h-[88vh] w-[40vw] min-w-[240px] max-w-[700px]">
-          <ActorVideoBasic
-            className="hero-actor-atlas"
-            desktopSrc="/media/hero/desktop/atlas-desktop.webm"
-            mobileSrc="/media/hero/mobile/atlas-mobile.webm"
-            objectPosition="left center"
-          />
+          <AsciiAtlasActor />
         </div>
       </div>
 

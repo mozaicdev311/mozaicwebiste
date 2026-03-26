@@ -6,31 +6,31 @@ import Image from "next/image"
 export const SharedBackground = forwardRef<HTMLDivElement, { isMobile: boolean }>(
   ({ isMobile }, ref) => {
     return (
-      <div ref={ref} className="absolute inset-0 z-0 pointer-events-none bg-[#0A0A0A] hero-canvases-container overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(255,255,255,0.16)_0%,rgba(255,255,255,0.04)_32%,rgba(10,10,10,1)_75%)]" />
+      <div ref={ref} className="absolute inset-0 z-0 pointer-events-none bg-black hero-canvases-container overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(255,255,255,0.04)_0%,rgba(0,0,0,0)_28%,rgba(0,0,0,1)_72%)]" />
 
         <div
           className="canvas-left absolute inset-0"
           style={{
             clipPath: isMobile ? "inset(0 0 0 0)" : "inset(0 50% 0 0)",
-            opacity: isMobile ? 0.5 : 0.92,
+            opacity: isMobile ? 0.3 : 0.48,
           }}
         >
-          <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(255,255,255,0.1)_0%,rgba(255,255,255,0.03)_35%,rgba(10,10,10,0.6)_100%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(255,255,255,0.02)_0%,rgba(255,255,255,0.008)_20%,rgba(0,0,0,0)_45%,rgba(0,0,0,0.9)_100%)]" />
         </div>
 
         <div
           className="canvas-right absolute inset-0"
           style={{
             clipPath: isMobile ? "inset(0 0 0 0)" : "inset(0 0 0 50%)",
-            opacity: isMobile ? 0.5 : 0.92,
+            opacity: isMobile ? 0.3 : 0.48,
           }}
         >
-          <div className="absolute inset-0 bg-[linear-gradient(250deg,rgba(255,255,255,0.1)_0%,rgba(255,255,255,0.03)_35%,rgba(10,10,10,0.6)_100%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(250deg,rgba(255,255,255,0.02)_0%,rgba(255,255,255,0.008)_20%,rgba(0,0,0,0)_45%,rgba(0,0,0,0.9)_100%)]" />
         </div>
 
         <div
-          className="absolute inset-0 opacity-[0.14]"
+          className="absolute inset-0 opacity-[0.08]"
           style={{
             backgroundImage:
               "linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px)",

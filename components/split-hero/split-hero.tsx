@@ -409,7 +409,7 @@ export default function SplitHero() {
   )
 
   return (
-    <div ref={containerRef} className="hero-scroll-container w-full h-[250vh] bg-[#0A0A0A]">
+    <div ref={containerRef} className="hero-scroll-container w-full h-[250vh] bg-black">
       <div className="hero-sticky sticky top-0 w-full h-screen overflow-hidden">
         <SharedBackground isMobile={false} />
         <HeroActorsLayer />
