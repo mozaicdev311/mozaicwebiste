@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "motion/react";
 import { Fingerprint, ArrowRight } from "lucide-react";
+import { HashLink } from "@/components/hash-link";
 import { HudLabel, ScrambleHeading, CornerBrackets, Barcode, fadeUp } from "../ui/Shared";
 
 const PersonnelDossier = () => {
@@ -152,9 +153,9 @@ const PersonnelDossier = () => {
             ))}
           </div>
         </div>
-        <a href="#team" className="flex-shrink-0 inline-flex items-center font-mono text-[10px] uppercase tracking-[0.2em] text-white hover:text-emerald-400 transition-colors duration-300 group/btn">
+        <HashLink href="#team" className="flex-shrink-0 inline-flex items-center font-mono text-[10px] uppercase tracking-[0.2em] text-white hover:text-emerald-400 transition-colors duration-300 group/btn">
           ACCESS_FULL_ROSTER <ArrowRight size={12} className="ml-2 group-hover/btn:translate-x-1 transition-transform" />
-        </a>
+        </HashLink>
       </div>
     </motion.div>
   );
@@ -162,7 +163,7 @@ const PersonnelDossier = () => {
 
 export default function Section08Team() {
   return (
-    <section id="team" className="relative px-[5%] py-16 md:py-24 border-y border-white/10">
+    <section id="team" className="relative scroll-mt-24 px-[5%] py-16 md:py-24 border-y border-white/10">
       <HudLabel className="mb-8">PERSONNEL.FILES // 08</HudLabel>
       <motion.div
         initial="hidden"

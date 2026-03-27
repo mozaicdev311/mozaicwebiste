@@ -2,6 +2,8 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import { SmoothScrolling } from "@/components/smooth-scrolling"
+import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from "@/components/ui/sonner"
 import "./globals.css"
 
 const inter = Inter({
@@ -29,9 +31,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} font-sans antialiased`}>
-        <SmoothScrolling>
-          {children}
-        </SmoothScrolling>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+          <SmoothScrolling>
+            {children}
+          </SmoothScrolling>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   )

@@ -1,6 +1,7 @@
 "use client"
 
 import { useRef } from "react"
+import Link from "next/link"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useGSAP } from "@gsap/react"
@@ -9,6 +10,7 @@ import { SplitHeroPanel } from "./split-hero-panel"
 import { HeroPanelContent } from "./hero-panel-content"
 import { HeroSeam } from "./hero-seam"
 import { HeroActorsLayer } from "./hero-actors-layer"
+import { HashLink } from "@/components/hash-link"
 import { FallingPattern } from "@/components/ui/falling-pattern"
 import { ScrollIndicator } from "./scroll-indicator"
 
@@ -498,12 +500,12 @@ export default function SplitHero() {
               ourselves. One operating team. Led by founders. Backed by specialists.
             </p>
             <div className="s2-ctas opacity-0 flex items-center justify-center gap-4 mb-12 pointer-events-auto">
-              <a href="#contact" className="px-6 py-3 bg-[#00FF66] text-black font-mono text-[12px] tracking-wider hover:brightness-110 transition-all">
+              <Link href="/contact" className="px-6 py-3 bg-[#00FF66] text-black font-mono text-[12px] tracking-wider hover:brightness-110 transition-all">
                 START A PROJECT
-              </a>
-              <a href="#work" className="px-6 py-3 border border-white text-white font-mono text-[12px] tracking-wider hover:bg-white hover:text-black transition-all">
+              </Link>
+              <HashLink href="#work" className="px-6 py-3 border border-white text-white font-mono text-[12px] tracking-wider hover:bg-white hover:text-black transition-all">
                 VIEW WORK
-              </a>
+              </HashLink>
             </div>
             <div className="s2-stats opacity-0 flex items-center justify-center gap-6 font-mono text-[11px] text-white/45">
               <span>ONE OPERATING TEAM</span>

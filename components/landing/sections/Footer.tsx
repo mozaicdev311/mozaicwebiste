@@ -1,4 +1,6 @@
 import React from "react";
+import Link from "next/link";
+import { HashLink } from "@/components/hash-link";
 
 export default function Footer() {
   return (
@@ -9,17 +11,17 @@ export default function Footer() {
           <p className="text-white/40 mb-0">&copy; 2026 MOZAIC // SYS.ONLINE</p>
         </div>
         <div className="flex flex-col gap-4 text-white/50">
-          <a href="#work" className="hover:text-white transition-colors flex items-center gap-2"><span className="text-white/20">&gt;</span> Work</a>
-          <a href="#services" className="hover:text-white transition-colors flex items-center gap-2"><span className="text-white/20">&gt;</span> Services</a>
-          <a href="#team" className="hover:text-white transition-colors flex items-center gap-2"><span className="text-white/20">&gt;</span> About</a>
-          <a href="#contact" className="hover:text-white transition-colors flex items-center gap-2"><span className="text-white/20">&gt;</span> Contact</a>
+          <HashLink href="#work" className="hover:text-white transition-colors flex items-center gap-2"><span className="text-white/20">&gt;</span> Work</HashLink>
+          <HashLink href="#services" className="hover:text-white transition-colors flex items-center gap-2"><span className="text-white/20">&gt;</span> Services</HashLink>
+          <HashLink href="#team" className="hover:text-white transition-colors flex items-center gap-2"><span className="text-white/20">&gt;</span> About</HashLink>
+          <Link href="/contact" className="hover:text-white transition-colors flex items-center gap-2"><span className="text-white/20">&gt;</span> Contact</Link>
         </div>
         <div className="flex flex-col gap-4 text-white/50">
-          <a href="#" className="hover:text-white transition-colors flex items-center gap-2"><span className="text-white/20">&gt;</span> Studio</a>
-          <a href="#" className="hover:text-white transition-colors flex items-center gap-2"><span className="text-white/20">&gt;</span> Product & Systems</a>
-          <a href="#" className="hover:text-white transition-colors flex items-center gap-2"><span className="text-white/20">&gt;</span> Growth</a>
-          <a href="#" className="hover:text-white transition-colors flex items-center gap-2"><span className="text-white/20">&gt;</span> AI & Automation</a>
-          <a href="#" className="hover:text-white transition-colors flex items-center gap-2"><span className="text-white/20">&gt;</span> Strategy</a>
+          <HashLink href="#service-brand-product" className="hover:text-white transition-colors flex items-center gap-2"><span className="text-white/20">&gt;</span> Studio</HashLink>
+          <HashLink href="#service-software" className="hover:text-white transition-colors flex items-center gap-2"><span className="text-white/20">&gt;</span> Product & Systems</HashLink>
+          <HashLink href="#service-growth" className="hover:text-white transition-colors flex items-center gap-2"><span className="text-white/20">&gt;</span> Growth</HashLink>
+          <HashLink href="#service-growth" className="hover:text-white transition-colors flex items-center gap-2"><span className="text-white/20">&gt;</span> AI & Automation</HashLink>
+          <HashLink href="#service-strategy" className="hover:text-white transition-colors flex items-center gap-2"><span className="text-white/20">&gt;</span> Strategy</HashLink>
         </div>
         <div className="text-white/50">
           <div className="flex items-center gap-2 mb-4"><div className="w-1.5 h-1.5 bg-white/30" /> Barcelona</div>

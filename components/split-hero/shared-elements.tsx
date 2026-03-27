@@ -2,6 +2,8 @@
 
 import { forwardRef } from "react"
 import Image from "next/image"
+import Link from "next/link"
+import { HashLink } from "@/components/hash-link"
 
 export const SharedBackground = forwardRef<HTMLDivElement, { isMobile: boolean }>(
   ({ isMobile }, ref) => {
@@ -60,10 +62,10 @@ export const SharedTopBar = forwardRef<HTMLDivElement, {}>((props, ref) => {
         </div>
 
         <div className="hidden lg:flex items-center gap-6 text-[10px] font-mono text-white/60">
-          <a href="#services" className="hover:text-white transition-colors">SERVICES</a>
-          <a href="#work" className="hover:text-white transition-colors">WORK</a>
-          <a href="#team" className="hover:text-white transition-colors">TEAM</a>
-          <a href="#contact" className="hover:text-white transition-colors">CONTACT</a>
+          <HashLink href="#services" className="hover:text-white transition-colors">SERVICES</HashLink>
+          <HashLink href="#work" className="hover:text-white transition-colors">WORK</HashLink>
+          <HashLink href="#team" className="hover:text-white transition-colors">TEAM</HashLink>
+          <Link href="/contact" className="hover:text-white transition-colors">CONTACT</Link>
         </div>
       </div>
     </div>

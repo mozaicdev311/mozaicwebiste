@@ -4,7 +4,7 @@ import { HudLabel, InteractiveCard, DataBar, fadeUp, staggerContainer } from "..
 
 export default function Section04Proof() {
   return (
-    <section id="work" className="relative px-[5%] py-16 md:py-24 border-y border-white/10">
+    <section id="work" className="relative scroll-mt-24 px-[5%] py-16 md:py-24 border-y border-white/10">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
         <motion.div 
           initial="hidden"
