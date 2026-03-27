@@ -2,27 +2,27 @@ import React from "react";
 import { motion } from "motion/react";
 import { HudLabel, fadeUp } from "../ui/Shared";
 
+const SERVICES = [
+  { id: "01", anchor: "service-brand-product", title: "Launch the brand and the product together.", desc: "Not two parallel tracks stitched together at the end. One team shaping identity, experience, and architecture from the same brief." },
+  { id: "02", anchor: "service-software", title: "Ship software that can carry the business.", desc: "Websites, platforms, marketplaces, SaaS, and internal tools built for real use, not just launch day." },
+  { id: "03", anchor: "service-growth", title: "Connect growth to product through intelligent systems.", desc: "Automation, acquisition, and implementation owned by the same team. No translation layer between strategy, code, and performance." },
+  { id: "04", anchor: "service-strategy", title: "Decide what to build before the budget moves.", desc: "Roadmaps, sequencing, scope, and architecture grounded in what can actually ship." }
+] as const
+
+const terminalLine = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.2 } }
+}
+
+const terminalContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.3, delayChildren: 0.2 }
+  }
+}
+
 const TerminalServices = () => {
-  const services = [
-    { id: "01", anchor: "service-brand-product", title: "Launch the brand and the product together.", desc: "Not two parallel tracks stitched together at the end. One team shaping identity, experience, and architecture from the same brief." },
-    { id: "02", anchor: "service-software", title: "Ship software that can carry the business.", desc: "Websites, platforms, marketplaces, SaaS, and internal tools built for real use, not just launch day." },
-    { id: "03", anchor: "service-growth", title: "Connect growth to product through intelligent systems.", desc: "Automation, acquisition, and implementation owned by the same team. No translation layer between strategy, code, and performance." },
-    { id: "04", anchor: "service-strategy", title: "Decide what to build before the budget moves.", desc: "Roadmaps, sequencing, scope, and architecture grounded in what can actually ship." }
-  ];
-
-  const terminalLine = {
-    hidden: { opacity: 0, y: 10 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.2 } }
-  };
-
-  const terminalContainer = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.3, delayChildren: 0.2 }
-    }
-  };
-
   return (
     <motion.div 
       initial="hidden"
@@ -48,8 +48,8 @@ const TerminalServices = () => {
           <span className="text-white">pnpm dlx mozaic@latest init --architecture</span>
         </motion.div>
         
-        {services.map((service, i) => (
-          <motion.div key={i} id={service.anchor} variants={terminalLine} className="flex scroll-mt-28 flex-col gap-1 mb-2">
+        {SERVICES.map((service) => (
+          <motion.div key={service.id} id={service.anchor} variants={terminalLine} className="flex scroll-mt-28 flex-col gap-1 mb-2">
             <div className="flex gap-3 items-start">
               <span className="text-emerald-500 mt-0.5">✔</span>
               <span className="text-white">Compiling Module {service.id}: {service.title}</span>

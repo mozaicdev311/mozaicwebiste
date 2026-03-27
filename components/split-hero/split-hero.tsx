@@ -34,28 +34,29 @@ interface HeroVisualState {
   actorPhaseMotionProfile: ActorPhaseMotionProfile
 }
 
+const HERO_VISUAL_STATE: HeroVisualState = {
+  phase4ActorProfile: {
+    minOpacity: 0.48,
+    maxBlurPx: 0.35,
+    minBrightness: 0.72,
+  },
+  phase4LayerMode: "actors_above_effects",
+  actorPhaseMotionProfile: {
+    phase2: { move: "converge", scale: "shrink" },
+    phase3: { move: "hold-center", scale: "hold" },
+    phase4: { move: "diverge", scale: "grow" },
+  },
+}
+
 export default function SplitHero() {
   const containerRef = useRef<HTMLDivElement>(null)
-  const heroVisualState: HeroVisualState = {
-    phase4ActorProfile: {
-      minOpacity: 0.48,
-      maxBlurPx: 0.35,
-      minBrightness: 0.72,
-    },
-    phase4LayerMode: "actors_above_effects",
-    actorPhaseMotionProfile: {
-      phase2: { move: "converge", scale: "shrink" },
-      phase3: { move: "hold-center", scale: "hold" },
-      phase4: { move: "diverge", scale: "grow" },
-    },
-  }
 
   useGSAP(
     () => {
       const mm = gsap.matchMedia()
 
       mm.add("(min-width: 1024px)", () => {
-        const { phase4ActorProfile, phase4LayerMode, actorPhaseMotionProfile } = heroVisualState
+        const { phase4ActorProfile, phase4LayerMode, actorPhaseMotionProfile } = HERO_VISUAL_STATE
 
         // Base desktop split state
         gsap.set(".panel-left-wrapper", { clipPath: "inset(0 50% 0 0)" })

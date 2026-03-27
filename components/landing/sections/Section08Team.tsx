@@ -4,34 +4,40 @@ import { Fingerprint, ArrowRight } from "lucide-react";
 import { HashLink } from "@/components/hash-link";
 import { HudLabel, ScrambleHeading, CornerBrackets, Barcode, fadeUp } from "../ui/Shared";
 
+const PERSONNEL = [
+  { 
+    id: "01", 
+    name: "Oussama", 
+    role: "Product, Systems & Business", 
+    location: "Barcelona",
+    coords: "41.3851° N, 2.1734° E",
+    desc: "Sees past the brief to the system behind it. Not the website. Not the campaign. The operating layer. Co-founded Natsnap and led product through launch: a two-sided marketplace with real users, real payments, and product logic composed from architecture to go-to-market." 
+  },
+  { 
+    id: "02", 
+    name: "Tawfik", 
+    role: "Creative Direction", 
+    location: "Paris",
+    coords: "48.8566° N, 2.3522° E",
+    desc: "Senior art direction and creative production across campaigns, launches, social content, and brand systems for Back Market, Moët Hennessy, Whatnot, and Vice TV. The reason a MOZAIC product doesn't just work. It feels like something." 
+  },
+  { 
+    id: "03", 
+    name: "Med Amine", 
+    role: "Tech Lead & Infrastructure", 
+    location: "Montreal",
+    coords: "45.5017° N, 73.5673° W",
+    desc: "Professional baseline: fintech. Systems that process real money under real regulatory scrutiny. Built PrepLingo's AI pipeline: speech evaluation, LLM scoring, encrypted storage, GDPR compliance. For candidates who cannot afford a system that guesses. His minimum is most studios' ceiling." 
+  }
+] as const
+
+const ATTACHED_MODULES = ["Brand", "UI/UX", "Product", "Dev", "Motion", "Content", "Growth", "Automation"] as const
+
+const LONGEST_DOSSIER_DESC = PERSONNEL[2].desc
+
 const PersonnelDossier = () => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const personnel = [
-    { 
-      id: "01", 
-      name: "Oussama", 
-      role: "Product, Systems & Business", 
-      location: "Barcelona",
-      coords: "41.3851° N, 2.1734° E",
-      desc: "Sees past the brief to the system behind it. Not the website. Not the campaign. The operating layer. Co-founded Natsnap and led product through launch: a two-sided marketplace with real users, real payments, and product logic composed from architecture to go-to-market." 
-    },
-    { 
-      id: "02", 
-      name: "Tawfik", 
-      role: "Creative Direction", 
-      location: "Paris",
-      coords: "48.8566° N, 2.3522° E",
-      desc: "Senior art direction and creative production across campaigns, launches, social content, and brand systems for Back Market, Moët Hennessy, Whatnot, and Vice TV. The reason a MOZAIC product doesn't just work. It feels like something." 
-    },
-    { 
-      id: "03", 
-      name: "Med Amine", 
-      role: "Tech Lead & Infrastructure", 
-      location: "Montreal",
-      coords: "45.5017° N, 73.5673° W",
-      desc: "Professional baseline: fintech. Systems that process real money under real regulatory scrutiny. Built PrepLingo's AI pipeline: speech evaluation, LLM scoring, encrypted storage, GDPR compliance. For candidates who cannot afford a system that guesses. His minimum is most studios' ceiling." 
-    }
-  ];
+  const activePerson = PERSONNEL[activeIndex]
 
   return (
     <motion.div 
@@ -54,7 +60,7 @@ const PersonnelDossier = () => {
             <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-[#0a0a0a] to-transparent z-10 pointer-events-none md:hidden" />
             
             <div className="flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-4 md:pb-0 px-6 md:px-0 no-scrollbar relative z-0">
-              {personnel.map((p, i) => (
+              {PERSONNEL.map((p, i) => (
                 <button
                   key={p.id}
                   onClick={() => setActiveIndex(i)}
@@ -106,16 +112,16 @@ const PersonnelDossier = () => {
             <div className="flex flex-col md:flex-row justify-between items-start mb-10 border-b border-white/10 pb-6 gap-6">
               <div>
                 <h3 className="text-[2.5rem] md:text-[3.5rem] font-medium leading-none mb-3 text-white">
-                  {personnel[activeIndex].name}
+                  {activePerson.name}
                 </h3>
                 <div className="font-mono text-[10px] md:text-xs uppercase tracking-[0.2em] text-white/50 bg-white/10 inline-block px-2 py-1">
-                  ROLE // {personnel[activeIndex].role}
+                  ROLE // {activePerson.role}
                 </div>
               </div>
               <div className="text-left md:text-right font-mono text-[10px] text-white/40 flex flex-col items-start md:items-end gap-1">
                 <Fingerprint size={32} className="mb-2 text-white/20 hidden md:block" />
-                <span className="text-white/60">LOC: {personnel[activeIndex].location.toUpperCase()}</span>
-                <span>{personnel[activeIndex].coords}</span>
+                <span className="text-white/60">LOC: {activePerson.location.toUpperCase()}</span>
+                <span>{activePerson.coords}</span>
               </div>
             </div>
 
@@ -123,11 +129,11 @@ const PersonnelDossier = () => {
             <div className="flex-1 relative">
               {/* Invisible placeholder of the longest text to perfectly lock the height across all screen sizes */}
               <p className="text-[1.125rem] md:text-[1.25rem] leading-relaxed max-w-[50ch] opacity-0 pointer-events-none select-none" aria-hidden="true">
-                {personnel[2].desc}
+                {LONGEST_DOSSIER_DESC}
               </p>
               {/* Actual animated text */}
               <p className="text-[1.125rem] md:text-[1.25rem] text-white/70 leading-relaxed max-w-[50ch] absolute top-0 left-0">
-                <ScrambleHeading text={personnel[activeIndex].desc} />
+                <ScrambleHeading text={activePerson.desc} />
               </p>
             </div>
 
@@ -148,8 +154,8 @@ const PersonnelDossier = () => {
         <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto opacity-70 hover:opacity-100 transition-opacity">
           <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/40">ATTACHED_MODULES:</span>
           <div className="flex flex-wrap gap-3">
-            {['Brand', 'UI/UX', 'Product', 'Dev', 'Motion', 'Content', 'Growth', 'Automation'].map((skill, i) => (
-              <span key={i} className="font-mono text-[10px] uppercase tracking-widest text-white/80">[{skill}]</span>
+            {ATTACHED_MODULES.map((skill) => (
+              <span key={skill} className="font-mono text-[10px] uppercase tracking-widest text-white/80">[{skill}]</span>
             ))}
           </div>
         </div>

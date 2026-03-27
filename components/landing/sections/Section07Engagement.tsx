@@ -3,7 +3,39 @@ import { motion } from "motion/react";
 import { Crosshair, HudLabel, fadeUp, staggerContainer } from "../ui/Shared";
 import { SprintGraph, BuildGraph, PartnerGraph } from "../ui/Graphs";
 
-const ProtocolRow = ({ index, mode, title, desc, GraphComponent }: any) => {
+interface ProtocolRowProps {
+  index: string
+  mode: string
+  title: string
+  desc: string
+  GraphComponent: React.ComponentType<{ isHovered: boolean }>
+}
+
+const PROTOCOLS: ProtocolRowProps[] = [
+  {
+    index: "01",
+    mode: "[ MODE: BURST_EXECUTION ]",
+    title: "Sprint",
+    desc: "The sharpest place to start. Strategy, audits, landing pages, product scoping, automation planning, and early system direction.",
+    GraphComponent: SprintGraph,
+  },
+  {
+    index: "02",
+    mode: "[ MODE: SYSTEM_COMPILE ]",
+    title: "Build",
+    desc: "End-to-end delivery across brand, websites, products, platforms, and intelligent systems.",
+    GraphComponent: BuildGraph,
+  },
+  {
+    index: "03",
+    mode: "[ MODE: CONTINUOUS_SYNC ]",
+    title: "Partner",
+    desc: "Ongoing creative, technical, product, and strategic support for teams that need a senior layer close to the work.",
+    GraphComponent: PartnerGraph,
+  },
+]
+
+function ProtocolRow({ index, mode, title, desc, GraphComponent }: ProtocolRowProps) {
   const [isHovered, setIsHovered] = useState(false);
   return (
     <motion.div 
@@ -60,27 +92,9 @@ export default function Section07Engagement() {
         variants={staggerContainer}
         className="flex flex-col relative border-t border-white/10"
       >
-        <ProtocolRow 
-          index="01"
-          mode="[ MODE: BURST_EXECUTION ]"
-          title="Sprint"
-          desc="The sharpest place to start. Strategy, audits, landing pages, product scoping, automation planning, and early system direction."
-          GraphComponent={SprintGraph}
-        />
-        <ProtocolRow 
-          index="02"
-          mode="[ MODE: SYSTEM_COMPILE ]"
-          title="Build"
-          desc="End-to-end delivery across brand, websites, products, platforms, and intelligent systems."
-          GraphComponent={BuildGraph}
-        />
-        <ProtocolRow 
-          index="03"
-          mode="[ MODE: CONTINUOUS_SYNC ]"
-          title="Partner"
-          desc="Ongoing creative, technical, product, and strategic support for teams that need a senior layer close to the work."
-          GraphComponent={PartnerGraph}
-        />
+        {PROTOCOLS.map((protocol) => (
+          <ProtocolRow key={protocol.index} {...protocol} />
+        ))}
       </motion.div>
     </section>
   );
