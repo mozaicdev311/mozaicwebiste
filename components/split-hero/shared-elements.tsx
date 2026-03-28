@@ -3,7 +3,7 @@
 import { forwardRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { HashLink } from "@/components/hash-link"
+import NavMenu from "@/components/ui/menu-hover-effects"
 
 export const SharedBackground = forwardRef<HTMLDivElement, { isMobile: boolean }>(
   ({ isMobile }, ref) => {
@@ -49,7 +49,7 @@ export const SharedTopBar = forwardRef<HTMLDivElement, {}>((props, ref) => {
   return (
     <div ref={ref} className="absolute top-0 left-0 right-0 z-50 pointer-events-none hero-topbar">
       <div className="container mx-auto px-4 lg:px-8 py-3 lg:py-4 flex items-center justify-between pointer-events-auto border-b border-white/20">
-        <div className="flex gap-2 lg:gap-4 items-center">
+        <div className="flex gap-2 lg:gap-4 items-center relative z-[60]">
           <Image
             src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Fichier%201HD_New_Mozaic_Opt1-RK66SS2l1DT94G5RIbxu7IbwIHkQ4A.png"
             alt="MOZAIC"
@@ -61,11 +61,8 @@ export const SharedTopBar = forwardRef<HTMLDivElement, {}>((props, ref) => {
           <span className="text-white/60 text-[8px] lg:text-[10px] font-mono">EST. 2026</span>
         </div>
 
-        <div className="hidden lg:flex items-center gap-6 text-[10px] font-mono text-white/60">
-          <HashLink href="#services" className="hover:text-white transition-colors">SERVICES</HashLink>
-          <HashLink href="#work" className="hover:text-white transition-colors">WORK</HashLink>
-          <HashLink href="#team" className="hover:text-white transition-colors">TEAM</HashLink>
-          <Link href="/contact" className="hover:text-white transition-colors">CONTACT</Link>
+        <div className="flex items-center">
+          <NavMenu />
         </div>
       </div>
     </div>
