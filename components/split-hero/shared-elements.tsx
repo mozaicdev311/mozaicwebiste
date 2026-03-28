@@ -32,11 +32,11 @@ export const SharedBackground = forwardRef<HTMLDivElement, { isMobile: boolean }
         </div>
 
         <div
-          className="absolute inset-0 opacity-[0.08]"
+          className="absolute inset-0 opacity-[0.25]"
           style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px)",
-            backgroundSize: "48px 48px",
+            backgroundImage: "radial-gradient(rgba(255,255,255,0.3) 1px, transparent 1px)",
+            backgroundSize: "24px 24px",
+            backgroundPosition: "center center"
           }}
         />
       </div>
