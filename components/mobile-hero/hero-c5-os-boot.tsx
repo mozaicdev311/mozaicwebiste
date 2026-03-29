@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef } from "react"
+import { useRef, useState } from "react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useGSAP } from "@gsap/react"
@@ -10,10 +10,51 @@ import { AsciiAtlasActor } from "@/components/split-hero/ascii-atlas-actor"
 import { AsciiVitruvianActor } from "@/components/split-hero/ascii-vitruvian-actor"
 import { SharedTopBar, SharedBottomBar, SharedBackground } from "@/components/split-hero/shared-elements"
 import { FallingPattern } from "@/components/ui/falling-pattern"
+import { useScrambleText } from "@/components/landing/ui/Shared"
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, useGSAP)
 }
+
+// ---------------------------------------------------------------------------
+// SPECIALIZED SCRAMBLE COMPONENTS
+// ---------------------------------------------------------------------------
+// We wrap the scramble hook in dedicated components so they can react to the 
+// `isBooted` state passed down from the GSAP timeline without re-rendering the whole page.
+
+function BootScrambleEyebrow({ isBooted }: { isBooted: boolean }) {
+  // Use a heavily cryptographic character set for the system boot theme
+  const scrambledText = useScrambleText("SYSTEM.UNIFIED", isBooted)
+  
+  return (
+    <span className="text-white/90 text-[10px] font-mono tracking-[0.2em] font-bold uppercase drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]">
+      {scrambledText}
+    </span>
+  )
+}
+
+function BootScrambleSubHeadline({ isBooted }: { isBooted: boolean }) {
+  // Wait a tiny bit longer before decrypting the sub-headline for staggered cinematic timing
+  const [delayedBoot, setDelayedBoot] = useState(false)
+  
+  if (isBooted && !delayedBoot) {
+    setTimeout(() => setDelayedBoot(true), 300) // 300ms delay after snap
+  } else if (!isBooted && delayedBoot) {
+    setDelayedBoot(false) // Reset on scroll back up
+  }
+
+  const scrambledText = useScrambleText("Built as one.", delayedBoot)
+  
+  return (
+    <span className="block text-white/70 mt-2 italic font-normal font-mono text-[16px] tracking-normal">
+      {scrambledText}
+    </span>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// MAIN HERO COMPONENT
+// ---------------------------------------------------------------------------
 
 export default function HeroC5OSBoot() {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -35,6 +76,11 @@ export default function HeroC5OSBoot() {
   // Global HUD Refs
   const hudWrapperRef = useRef<HTMLDivElement>(null)
   const scrollHintRef = useRef<HTMLDivElement>(null)
+
+  // React State controlled by GSAP
+  const [isBooted, setIsBooted] = useState(false)
+  // Mutable ref to track state without causing stale closures in the GSAP loop
+  const bootStateRef = useRef(false)
 
   useGSAP(() => {
     // ---------------------------------------------------------------------------
@@ -74,6 +120,19 @@ export default function HeroC5OSBoot() {
           delay: 0.15, // Wait until thumb is completely done moving
           duration: { min: 0.3, max: 0.8 }, 
           ease: "power2.inOut" // Smooth, magnetic snap
+        },
+        // React State Sync (Approach B implementation with Ref Gatekeeper)
+        onUpdate: (self) => {
+          // If the user scrolls past the 48% mark (or snaps to it), fire the scramble!
+          // We use 0.48 to give it a tiny headstart right as the snap finishes settling
+          if (self.progress >= 0.48 && !bootStateRef.current) {
+            bootStateRef.current = true
+            setIsBooted(true)
+          } else if (self.progress < 0.48 && bootStateRef.current) {
+            // Reset the scramble if the user scrolls back up into space
+            bootStateRef.current = false
+            setIsBooted(false)
+          }
         }
       }
     })
@@ -172,10 +231,10 @@ export default function HeroC5OSBoot() {
     // This perfectly spans the 50% -> 100% snap runway.
     tl.to({}, { duration: 3 })
 
-  }, { scope: containerRef })
+  }, { scope: containerRef }) // CRITICAL FIX: Removed dependencies array completely to prevent timeline destruction
 
   return (
-    // The Track: Height is managed dynamically by GSAP pinSpacing to prevent double-padding
+    // The Track: Height managed entirely by GSAP pinSpacing to eliminate the ghost scroll bug
     <div ref={containerRef} className="relative w-full bg-black text-white font-sans selection:bg-white selection:text-black">
       
       {/* 
@@ -313,20 +372,17 @@ export default function HeroC5OSBoot() {
 
             <div className="relative z-10 w-full max-w-[280px] flex flex-col items-center pointer-events-auto mt-8">
               
-              {/* Eyebrow */}
+              {/* Eyebrow - SCRAMBLED */}
               <div className="flex items-center justify-center gap-4 w-full mb-8">
                 <div className="flex-1 h-px bg-gradient-to-r from-transparent to-white/40 max-w-[40px]" />
-                <span className="text-white/90 text-[10px] font-mono tracking-[0.2em] font-bold uppercase drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]">
-                  System.Unified
-                </span>
+                <BootScrambleEyebrow isBooted={isBooted} />
                 <div className="flex-1 h-px bg-gradient-to-l from-transparent to-white/40 max-w-[40px]" />
               </div>
 
-              {/* Headline */}
+              {/* Headline (Static for authority) with Scrambled Sub-Headline */}
               <h1 className="text-[36px] sm:text-[40px] leading-[1.05] font-medium tracking-tight text-white font-serif mb-5 text-balance">
                 Brand, product, and intelligent systems.
-                {/* UI FIX: mt-2 and 70% opacity for tighter optical bridging */}
-                <span className="block text-white/70 mt-2 italic font-normal">Built as one.</span>
+                <BootScrambleSubHeadline isBooted={isBooted} />
               </h1>
 
               {/* Subtext */}
