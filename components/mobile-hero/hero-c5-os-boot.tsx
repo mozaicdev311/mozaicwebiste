@@ -5,8 +5,10 @@ import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useGSAP } from "@gsap/react"
 import Link from "next/link"
+
 import { AsciiAtlasActor } from "@/components/split-hero/ascii-atlas-actor"
 import { AsciiVitruvianActor } from "@/components/split-hero/ascii-vitruvian-actor"
+import { SharedTopBar, SharedBottomBar, SharedBackground } from "@/components/split-hero/shared-elements"
 import { FallingPattern } from "@/components/ui/falling-pattern"
 
 if (typeof window !== "undefined") {
@@ -28,9 +30,10 @@ export default function HeroC5OSBoot() {
   const unifiedPayloadRef = useRef<HTMLDivElement>(null)
   const matrixRainRef = useRef<HTMLDivElement>(null)
   const corruptionLayerRef = useRef<HTMLDivElement>(null)
+  const volumetricShadowRef = useRef<HTMLDivElement>(null)
   
-  // HUD Refs
-  const hudRef = useRef<HTMLDivElement>(null)
+  // Global HUD Refs
+  const hudWrapperRef = useRef<HTMLDivElement>(null)
   const scrollHintRef = useRef<HTMLDivElement>(null)
 
   useGSAP(() => {
@@ -38,177 +41,171 @@ export default function HeroC5OSBoot() {
     // PRE-RENDER SETUP
     // ---------------------------------------------------------------------------
     
-    // 1. The Payload: Set deep in Z-space, scaled down, completely hidden
+    // 1. The Payload: Set deep in Z-space, completely hidden. 
     gsap.set(unifiedPayloadRef.current, {
-      scale: 0.8, // Don't scale too small, it looks unnatural. 0.8 is subtle.
       autoAlpha: 0,
-      z: -1000 // Deep space
+      z: -2500 // Start much deeper for the tunnel effect
     })
 
-    // 2. The Matrix Rain: Hide it and reset the bleed progress mask
+    // 2. The Matrix Rain: Condensation state
     gsap.set(matrixRainRef.current, { 
       autoAlpha: 0,
-      "--bleed-progress": "0%" 
+      scale: 1.15, // Starts slightly scaled up (un-condensed)
+      clipPath: "inset(0% 0% 100% 0%)" // Hardware-accelerated mask hidden from bottom up
     })
 
-    // 3. Corruption Layer: Completely invisible overlay
-    gsap.set(corruptionLayerRef.current, { 
+    // 3. Corruption Layer & Shadow Shield: Completely invisible
+    gsap.set([corruptionLayerRef.current, volumetricShadowRef.current], { 
       autoAlpha: 0 
     })
 
     // Create the master timeline linked to the user's scroll position
+    // Symmetrical Math: 0% (0s), 50% (3s), 100% (6s)
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: containerRef.current,
         start: "top top",
-        end: "+=300%", // 300vh of scrolling runway
+        end: "+=300%", // 300vh = 3 screen lengths
         pin: pinRef.current,
-        scrub: 1, // 1-second smoothing for buttery momentum
+        // UI/UX FIX: Snappy scrub to remove floaty lag
+        scrub: 0.8, 
         snap: {
-          snapTo: [0, 0.45, 1], // The Spring Lock: Start, Payload Reveal, Hold End
-          duration: { min: 0.2, max: 0.8 },
-          ease: "power1.inOut"
+          snapTo: [0, 0.5, 1],
+          delay: 0.15, // Wait until thumb is completely done moving
+          duration: { min: 0.3, max: 0.8 }, 
+          ease: "power2.inOut" // Smooth, magnetic snap
         }
       }
     })
 
     // ---------------------------------------------------------------------------
-    // PHASE 1: THE HOOK (Flythrough - 0s to 3s)
+    // OVERLAPPING PHASES (0s to 3s)
+    // Phase 1 (Flythrough) runs 0s -> 2.5s
+    // Phase 2 (Reveal) runs 0.5s -> 3s
     // ---------------------------------------------------------------------------
     
-    // Instantly fade out scroll hint, but keep HUD alive longer for OS feel
-    tl.to(scrollHintRef.current, { autoAlpha: 0, duration: 0.5, ease: "power2.out" }, 0)
-    tl.to(hudRef.current, { autoAlpha: 0.2, duration: 2, ease: "power2.out" }, 0) // Dim HUD, don't kill it
+    // Instantly fade out scroll hint
+    tl.to(scrollHintRef.current, { autoAlpha: 0, duration: 0.3, ease: "power2.out" }, 0)
+    
+    // Dim the Global HUD
+    tl.to(hudWrapperRef.current, { autoAlpha: 0.3, duration: 1, ease: "power2.out" }, 0) 
 
-    // Fly Atlas (Top Actor) towards and past the camera
-    tl.to(topActorRef.current, {
-      z: 1500, // Move way past the camera (Perspective is 1000)
-      y: -300,
-      x: -80,
-      scale: 3,
-      autoAlpha: 0, // Fade out as it passes lens
-      filter: "blur(30px)", // Intense DOF
-      duration: 3,
-      ease: "power3.in" // Accelerates as it gets closer
-    }, 0)
+    // Z-PARALLAX & FOCAL ILLUSION: Replace heavy blurs with micro-blurs + opacity fade
+    // This guarantees 60fps on mobile GPUs while keeping visceral depth
 
-    // Fly Top Text
     tl.to(topTextRef.current, {
-      z: 1500,
-      y: -450,
-      scale: 3,
+      z: 2200,
+      y: -500,
       autoAlpha: 0,
-      filter: "blur(20px)",
-      duration: 3,
+      filter: "blur(4px)", // Micro-blur
+      duration: 2.5,
       ease: "power3.in"
     }, 0)
 
-    // Fly Vitruvian (Bottom Actor) towards and past the camera
-    tl.to(bottomActorRef.current, {
-      z: 1500,
-      y: 300,
-      x: 80,
-      scale: 3,
-      autoAlpha: 0,
-      filter: "blur(30px)",
-      duration: 3,
-      ease: "power3.in"
+    tl.to(topActorRef.current, {
+      z: 1600,
+      y: -400,
+      x: -120,
+      autoAlpha: 0, 
+      filter: "blur(6px)", 
+      duration: 2.5,
+      ease: "power3.in" 
     }, 0)
 
-    // Fly Bottom Text
     tl.to(bottomTextRef.current, {
-      z: 1500,
-      y: 450,
-      scale: 3,
+      z: 2200,
+      y: 500,
       autoAlpha: 0,
-      filter: "blur(20px)",
-      duration: 3,
+      filter: "blur(4px)",
+      duration: 2.5,
       ease: "power3.in"
     }, 0)
 
-    // ---------------------------------------------------------------------------
-    // TRANSITION: CORRUPTION LAYER (1.5s to 2.5s)
-    // ---------------------------------------------------------------------------
-    // As the actors get close, the screen darkens slightly to mask the swap
-    tl.to(corruptionLayerRef.current, {
-      autoAlpha: 0.8,
-      duration: 1,
-      ease: "power1.inOut"
-    }, 1.5)
+    tl.to(bottomActorRef.current, {
+      z: 1600,
+      y: 400,
+      x: 120,
+      autoAlpha: 0,
+      filter: "blur(6px)",
+      duration: 2.5,
+      ease: "power3.in"
+    }, 0)
 
-    // ---------------------------------------------------------------------------
-    // PHASE 2: THE REVEAL (Payload & Rain - 2s to 4s)
-    // ---------------------------------------------------------------------------
-    
-    // Matrix Rain bleeds down from the top and fades in
+    // CORRUPTION LAYER masks the cross-fade
+    tl.to(corruptionLayerRef.current, {
+      autoAlpha: 0.85, 
+      duration: 1.5,
+      ease: "power2.inOut"
+    }, 0.5)
+
+    // REVEAL: Rain condenses onto the glass (0.5s to 3s)
+    // Clip-path grows downwards like shooting lines of code
     tl.to(matrixRainRef.current, {
       autoAlpha: 1,
-      "--bleed-progress": "100%",
+      scale: 1, // Condenses
+      clipPath: "inset(0% 0% 0% 0%)", // Grows down to full screen
+      duration: 2.5,
+      ease: "power2.out"
+    }, 0.5)
+
+    // The Payload floats in from deep space, intersecting the flying actors
+    tl.to(unifiedPayloadRef.current, {
+      autoAlpha: 1, 
+      z: 0, 
+      duration: 2.5,
+      ease: "power3.out" 
+    }, 0.5)
+
+    // Fade up volumetric shadow
+    tl.to(volumetricShadowRef.current, {
+      autoAlpha: 1,
       duration: 2,
       ease: "power2.out"
-    }, 2)
+    }, 1)
 
-    // The Payload (CTAs/Text) floats in from deep space
-    tl.to(unifiedPayloadRef.current, {
-      scale: 1,
-      autoAlpha: 1, // Visible and clickable
-      z: 0, // Rests at normal screen depth
-      duration: 2.5,
-      ease: "back.out(1.2)" // Slight overshoot for impact
-    }, 2)
+    // Restore HUD
+    tl.to(hudWrapperRef.current, { autoAlpha: 1, duration: 1, ease: "power2.out" }, 2) 
 
     // ---------------------------------------------------------------------------
-    // PHASE 3: THE HOLD & RELEASE (4s to 6.5s)
+    // PHASE 3: THE HOLD & RELEASE (3s to 6s)
     // ---------------------------------------------------------------------------
-    
-    // Inject 2.5s of "dead space" into the timeline. 
-    // This holds the screen pinned so the user can read and click the CTAs.
-    tl.to({}, { duration: 2.5 })
+    // This perfectly spans the 50% -> 100% snap runway.
+    tl.to({}, { duration: 3 })
 
   }, { scope: containerRef })
 
   return (
-    // The Track: 400dvh gives us enough scrolling runway for the timeline
-    <div ref={containerRef} className="relative w-full h-[400dvh] bg-black text-white font-sans selection:bg-white selection:text-black">
+    // The Track: Height is managed dynamically by GSAP pinSpacing to prevent double-padding
+    <div ref={containerRef} className="relative w-full bg-black text-white font-sans selection:bg-white selection:text-black">
       
       {/* 
         The Viewport Wrapper (Handles Overflow)
-        CRITICAL FIX: overflow:hidden MUST be separated from preserve-3d, 
-        otherwise Safari/Chrome flattens the Z-axis into a 2D block.
+        Strictly 2D box to prevent Webkit from flattening the 3D children.
       */}
       <div 
         ref={pinRef}
         className="h-[100dvh] w-full overflow-hidden relative"
       >
         
-        {/* HUD: GLOBAL MOZAIC FRAME (Outside 3D context) */}
-        <div ref={hudRef} className="absolute inset-0 z-50 p-6 pointer-events-none mix-blend-screen">
-          <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-white/30 m-6" />
-          <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-white/30 m-6" />
-          <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-white/30 m-6" />
-          <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r border-white/30 m-6" />
-          
-          <div className="absolute top-0 inset-x-0 pt-16 flex flex-col items-center gap-2">
-            <div className="flex items-center gap-3 text-[9px] font-mono tracking-[0.4em] text-white/50 uppercase">
-              <span className="opacity-70">OS.BOOT_SEQ</span>
-              <div className="w-1.5 h-1.5 bg-white/80 rounded-full animate-pulse shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
-              <span className="opacity-70">SYS.LOCKED</span>
-            </div>
-          </div>
+        {/* GLOBAL MOZAIC HUD (Top & Bottom Bars - Unified Aesthetic) */}
+        <div ref={hudWrapperRef} className="absolute inset-0 z-50 pointer-events-none flex flex-col justify-between mix-blend-screen">
+          <SharedTopBar />
+          <div className="flex-1" />
+          <SharedBottomBar />
         </div>
 
         {/* Scroll Hint */}
         <div 
           ref={scrollHintRef}
-          className="absolute bottom-12 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center pointer-events-none"
+          className="absolute bottom-20 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center pointer-events-none"
         >
-          <span className="text-[10px] font-mono tracking-[0.2em] text-white/80 mb-3 whitespace-nowrap drop-shadow-md">INITIATE BOOT</span>
-          <div className="w-px h-10 bg-gradient-to-b from-white via-white/50 to-transparent animate-pulse" />
+          <span className="text-[9px] font-mono tracking-[0.25em] text-white/80 mb-3 whitespace-nowrap drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]">INITIATE SYSTEM</span>
+          <div className="w-px h-12 bg-gradient-to-b from-white via-white/50 to-transparent animate-pulse" />
         </div>
 
         {/* 
           The 3D Scene (Handles Z-Space Depth)
-          This inner div holds perspective and preserve-3d safely.
+          This inner div holds perspective safely.
         */}
         <div 
           ref={sceneRef}
@@ -216,28 +213,31 @@ export default function HeroC5OSBoot() {
           style={{ perspective: "1000px", transformStyle: "preserve-3d" }}
         >
 
+          {/* SHARED MOZAIC BACKGROUND (Grid & Radials) */}
+          <SharedBackground isMobile={true} />
+
           {/* TOP ACTOR (ATLAS) */}
           <div 
             ref={topActorRef}
-            className="absolute top-[5%] inset-x-0 flex items-center justify-center mix-blend-screen scale-[1.1] pointer-events-none will-change-transform"
+            className="absolute top-[8%] inset-x-0 flex items-center justify-center mix-blend-screen scale-[1.15] pointer-events-none will-change-transform"
             style={{ transformStyle: "preserve-3d" }}
           >
-            <div className="relative w-[120vw] h-[120vw]">
+            <div className="relative w-[130vw] h-[130vw]">
               <AsciiAtlasActor className="w-full h-full object-contain" />
             </div>
           </div>
 
-          {/* TOP TEXT (STUDIO) */}
+          {/* TOP TEXT (STUDIO) - UI FIX: Absolute container with responsive padding instead of left-X */}
           <div 
             ref={topTextRef}
-            className="absolute top-[32%] left-6 w-full pointer-events-none will-change-transform"
+            className="absolute top-[35%] inset-x-0 px-6 sm:px-8 pointer-events-none will-change-transform"
             style={{ transformStyle: "preserve-3d" }}
           >
-            <div className="flex items-center gap-3 mb-3">
-              <span className="text-white/40 text-[10px] font-mono tracking-[0.3em]">01 ──</span>
-              <span className="text-white text-[10px] font-mono tracking-[0.2em] drop-shadow-[0_0_4px_rgba(255,255,255,0.3)]">STUDIO</span>
+            <div className="flex items-center gap-3 mb-2">
+              <span className="text-white/40 text-[9px] font-mono tracking-[0.3em]">01 ──</span>
+              <span className="text-white text-[9px] font-mono tracking-[0.25em] drop-shadow-[0_0_4px_rgba(255,255,255,0.4)]">STUDIO</span>
             </div>
-            <h2 className="text-[28px] leading-[1.05] font-medium tracking-tight text-white max-w-[280px] drop-shadow-lg font-serif italic">
+            <h2 className="text-[32px] leading-[1.05] font-medium tracking-tight text-white max-w-[280px] drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)] font-serif italic">
               Brand systems <br />with signal.
             </h2>
           </div>
@@ -245,25 +245,25 @@ export default function HeroC5OSBoot() {
           {/* BOTTOM ACTOR (VITRUVIAN) */}
           <div 
             ref={bottomActorRef}
-            className="absolute top-[48%] inset-x-0 flex items-center justify-center mix-blend-screen scale-[0.85] pointer-events-none will-change-transform"
+            className="absolute top-[45%] inset-x-0 flex items-center justify-center mix-blend-screen scale-[0.9] pointer-events-none will-change-transform"
             style={{ transformStyle: "preserve-3d" }}
           >
-            <div className="relative w-[120vw] h-[120vw]">
+            <div className="relative w-[130vw] h-[130vw]">
               <AsciiVitruvianActor className="w-full h-full object-contain" />
             </div>
           </div>
 
-          {/* BOTTOM TEXT (SYSTEMS) */}
+          {/* BOTTOM TEXT (SYSTEMS) - UI FIX: Responsive padding */}
           <div 
             ref={bottomTextRef}
-            className="absolute top-[58%] left-6 w-full pointer-events-none will-change-transform"
+            className="absolute top-[60%] inset-x-0 px-6 sm:px-8 pointer-events-none will-change-transform"
             style={{ transformStyle: "preserve-3d" }}
           >
-            <div className="flex items-center gap-3 mb-3">
-              <span className="text-white/40 text-[10px] font-mono tracking-[0.3em]">02 ──</span>
-              <span className="text-white text-[10px] font-mono tracking-[0.2em] drop-shadow-[0_0_4px_rgba(255,255,255,0.3)]">PRODUCT & SYSTEMS</span>
+            <div className="flex items-center gap-3 mb-2">
+              <span className="text-white/40 text-[9px] font-mono tracking-[0.3em]">02 ──</span>
+              <span className="text-white text-[9px] font-mono tracking-[0.25em] drop-shadow-[0_0_4px_rgba(255,255,255,0.4)]">PRODUCT & SYSTEMS</span>
             </div>
-            <h2 className="text-[28px] leading-[1.05] font-medium tracking-tight text-white max-w-[280px] drop-shadow-lg font-serif italic">
+            <h2 className="text-[32px] leading-[1.05] font-medium tracking-tight text-white max-w-[280px] drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)] font-serif italic">
               Software that carries <br />the business.
             </h2>
           </div>
@@ -272,29 +272,24 @@ export default function HeroC5OSBoot() {
           <div 
             ref={corruptionLayerRef}
             className="absolute inset-0 bg-black pointer-events-none will-change-[opacity]"
-            style={{ transform: "translateZ(0px)" }} // Keeps it flat but inside 3D space
+            style={{ transform: "translateZ(0px)" }} 
           />
 
           {/* 
             MATRIX RAIN (FallingPattern) 
-            Restored matching the desktop aesthetic with the bleeding mask
+            UI FIX: Hardware-accelerated clip-path growth + Condensation scale
           */}
           <div
             ref={matrixRainRef}
-            className="absolute inset-0 pointer-events-none overflow-hidden will-change-[opacity]"
-            style={{
-              "--bleed-progress": "0%",
-              maskImage: "linear-gradient(to bottom, black 0%, black var(--bleed-progress), transparent calc(var(--bleed-progress) + 30vh), transparent 100%)",
-              WebkitMaskImage: "linear-gradient(to bottom, black 0%, black var(--bleed-progress), transparent calc(var(--bleed-progress) + 30vh), transparent 100%)",
-              transform: "translateZ(0px)"
-            } as React.CSSProperties}
+            className="absolute inset-0 pointer-events-none overflow-hidden will-change-transform"
+            style={{ transform: "translateZ(0px)" }}
           >
             <FallingPattern 
-              color="rgba(255,255,255,0.4)" 
-              blurIntensity="1em" 
+              color="rgba(255,255,255,0.35)" 
+              blurIntensity="1.5em" 
               density={1} 
-              duration={150} 
-              className="bg-black/20 backdrop-blur-sm"
+              duration={120}
+              className="bg-black/10 backdrop-blur-[2px]"
             />
           </div>
 
@@ -304,33 +299,46 @@ export default function HeroC5OSBoot() {
             className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center will-change-transform"
             style={{ transformStyle: "preserve-3d" }}
           >
-            <div className="relative z-10 w-full flex flex-col items-center pointer-events-auto">
+            {/* VOLUMETRIC SHADOW SHIELD (Apple HIG Contrast Compliance) */}
+            {/* UI FIX: Ultra-diffused, massive blurred ellipse instead of a hard radial gradient */}
+            <div 
+              className="absolute inset-0 z-0 pointer-events-none flex items-center justify-center"
+              style={{ transform: "translateZ(-1px)" }} 
+            >
+              <div 
+                ref={volumetricShadowRef}
+                className="w-[180%] h-[60%] bg-black/80 blur-[60px] rounded-[100%] will-change-[opacity]" 
+              />
+            </div>
+
+            <div className="relative z-10 w-full max-w-[280px] flex flex-col items-center pointer-events-auto mt-8">
               
               {/* Eyebrow */}
-              <div className="flex items-center justify-center gap-4 w-full mb-10">
-                <div className="flex-1 h-px bg-gradient-to-r from-transparent to-white/30 max-w-[60px]" />
-                <span className="text-white/80 text-[10px] font-mono tracking-[0.3em] font-bold uppercase drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">
+              <div className="flex items-center justify-center gap-4 w-full mb-8">
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent to-white/40 max-w-[40px]" />
+                <span className="text-white/90 text-[10px] font-mono tracking-[0.2em] font-bold uppercase drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]">
                   System.Unified
                 </span>
-                <div className="flex-1 h-px bg-gradient-to-l from-transparent to-white/30 max-w-[60px]" />
+                <div className="flex-1 h-px bg-gradient-to-l from-transparent to-white/40 max-w-[40px]" />
               </div>
 
               {/* Headline */}
-              <h1 className="text-[40px] leading-[1.05] font-medium tracking-tight text-white font-serif mb-6 text-balance max-w-[340px]">
+              <h1 className="text-[36px] sm:text-[40px] leading-[1.05] font-medium tracking-tight text-white font-serif mb-5 text-balance">
                 Brand, product, and intelligent systems.
-                <span className="block text-white/50 mt-3 italic">Built as one.</span>
+                {/* UI FIX: mt-2 and 70% opacity for tighter optical bridging */}
+                <span className="block text-white/70 mt-2 italic font-normal">Built as one.</span>
               </h1>
 
               {/* Subtext */}
-              <p className="text-[14px] leading-[1.6] font-mono text-white/50 mb-12 max-w-[300px] tracking-wide text-balance">
+              <p className="text-[13px] leading-[1.6] font-mono text-white/60 mb-10 max-w-[260px] tracking-wide text-balance">
                 One operating team. Led by founders. Backed by specialists. We build complete digital systems.
               </p>
 
-              {/* CTAs */}
-              <div className="flex flex-col gap-4 w-full max-w-[300px]">
+              {/* CTAs (Apple HIG: min-h-[44px], crisp typography) */}
+              <div className="flex flex-col gap-3 w-full">
                 <Link 
                   href="/contact" 
-                  className="group relative w-full py-4 bg-white text-black font-mono text-[13px] font-bold tracking-[0.15em] overflow-hidden active:scale-[0.98] transition-all duration-500"
+                  className="group relative w-full min-h-[44px] flex items-center justify-center bg-white text-black font-mono text-[12px] font-bold tracking-[0.1em] overflow-hidden active:scale-[0.98] transition-all duration-500"
                 >
                   <div className="absolute inset-0 bg-neutral-200 -translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-out" />
                   <span className="relative z-10">START A PROJECT</span>
@@ -338,7 +346,7 @@ export default function HeroC5OSBoot() {
                 
                 <Link 
                   href="#work" 
-                  className="group relative w-full py-4 border border-white/20 text-white font-mono text-[13px] tracking-[0.15em] overflow-hidden active:scale-[0.98] active:bg-white/5 transition-all duration-500"
+                  className="group relative w-full min-h-[44px] flex items-center justify-center border border-white/20 text-white font-mono text-[12px] tracking-[0.1em] overflow-hidden active:scale-[0.98] active:bg-white/5 transition-all duration-500"
                 >
                   <span className="relative z-10">VIEW WORK</span>
                   <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white opacity-0 group-hover:opacity-100 transition-opacity" />
