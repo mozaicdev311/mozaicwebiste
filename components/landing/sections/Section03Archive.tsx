@@ -47,7 +47,7 @@ export default function Section03Archive() {
           <SystemScanGraph />
           <h3 className="text-[1.5rem] font-medium mb-4 text-white">Technical standards under genuine scrutiny.</h3>
           <p className="text-[1rem] text-white/50 leading-relaxed">
-            Security-first engineering shaped in high-stakes environments. Our tech lead's baseline is fintech. Reliability and compliance that do not disappear because the project happens to be a website. That is the technical floor.
+            Security-first engineering shaped in high-stakes environments. Our tech lead&apos;s baseline is fintech. Reliability and compliance that do not disappear because the project happens to be a website. That is the technical floor.
           </p>
         </InteractiveCard>
         

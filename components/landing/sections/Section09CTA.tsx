@@ -42,7 +42,7 @@ export default function Section09CTA() {
             <div className="relative flex-1">
               {/* Invisible placeholder to lock height perfectly */}
               <h2 className="text-[clamp(2rem,4vw,3.5rem)] leading-[1.1] tracking-[-0.02em] font-medium opacity-0 pointer-events-none select-none" aria-hidden="true">
-                Tell us what you're building.
+                Tell us what you&apos;re building.
               </h2>
               {/* Actual animated text */}
               <h2 className="text-[clamp(2rem,4vw,3.5rem)] leading-[1.1] tracking-[-0.02em] font-medium text-white absolute top-0 left-0 w-full">
@@ -56,7 +56,7 @@ export default function Section09CTA() {
             <div className="relative flex-1">
               {/* Invisible placeholder to lock height perfectly */}
               <p className="text-[1.125rem] md:text-[1.25rem] max-w-[45ch] leading-relaxed opacity-0 pointer-events-none select-none" aria-hidden="true">
-                Stage, constraints, timeline, and what is at stake. We'll tell you where to start. And what not to build yet.
+                Stage, constraints, timeline, and what is at stake. We&apos;ll tell you where to start. And what not to build yet.
               </p>
               {/* Actual animated text */}
               <p className="text-white/60 text-[1.125rem] md:text-[1.25rem] max-w-[45ch] leading-relaxed absolute top-0 left-0 w-full">

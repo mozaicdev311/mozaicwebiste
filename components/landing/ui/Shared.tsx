@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
-import { motion, useInView } from "motion/react";
+import React, { useEffect, useRef, useState } from "react";
+import { motion, useInView, type HTMLMotionProps, type Variants } from "motion/react";
 
 // --- Custom Hooks & Utilities ---
 export const useScrambleText = (text: string, trigger: boolean = true) => {
@@ -10,7 +10,6 @@ export const useScrambleText = (text: string, trigger: boolean = true) => {
   
   useEffect(() => {
     if (!trigger) {
-      setDisplayText(text);
       return;
     }
     
@@ -19,7 +18,7 @@ export const useScrambleText = (text: string, trigger: boolean = true) => {
     const speedMultiplier = Math.max(1 / 3, text.length / 80); // Faster reveal for longer texts
     
     const interval = setInterval(() => {
-      setDisplayText((prev) => 
+      setDisplayText(
         text.split("").map((letter, index) => {
           if (index < iteration) return text[index];
           return chars[Math.floor(Math.random() * chars.length)];
@@ -36,7 +35,7 @@ export const useScrambleText = (text: string, trigger: boolean = true) => {
     return () => clearInterval(interval);
   }, [text, trigger]);
   
-  return displayText;
+  return trigger ? displayText : text;
 };
 
 const BARCODE_WIDTHS = [4.6, 3.1, 3.2, 3.0, 3.9, 3.9, 2.3, 2.4, 2.1, 1.7, 3.3, 1.1, 5.0, 4.9, 1.8, 1.2, 2.0, 3.9, 1.3, 2.7];
@@ -120,6 +119,12 @@ export const DataBar = ({ label, value }: { label: string, value: number }) => (
   </div>
 );
 
+interface MotionCardProps extends HTMLMotionProps<"div"> {
+  children: React.ReactNode
+  className?: string
+  variants?: Variants
+}
+
 // --- Animations ---
 export const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -179,9 +184,10 @@ export const StorytellingBridge = ({ label }: { label: string }) => {
   );
 };
 
-export const InteractiveCard = React.forwardRef(({ children, className = "", variants, ...props }: any, forwardedRef) => {
-  const localRef = useRef(null);
-  const ref = forwardedRef || localRef;
+export const InteractiveCard = React.forwardRef<HTMLDivElement, MotionCardProps>(
+  ({ children, className = "", variants, ...props }, forwardedRef) => {
+  const localRef = useRef<HTMLDivElement>(null);
+  const ref = forwardedRef ?? localRef;
   const isInView = useInView(ref, { margin: "-30% 0px -30% 0px" });
 
   return (
@@ -195,5 +201,5 @@ export const InteractiveCard = React.forwardRef(({ children, className = "", var
       {children}
     </motion.div>
   );
-});
+})
 InteractiveCard.displayName = "InteractiveCard";
