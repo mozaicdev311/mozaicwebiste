@@ -83,154 +83,164 @@ export default function HeroC5OSBoot() {
   const bootStateRef = useRef(false)
 
   useGSAP(() => {
-    // ---------------------------------------------------------------------------
-    // PRE-RENDER SETUP
-    // ---------------------------------------------------------------------------
-    
-    // 1. The Payload: Set deep in Z-space, completely hidden. 
-    gsap.set(unifiedPayloadRef.current, {
-      autoAlpha: 0,
-      z: -2500 // Start much deeper for the tunnel effect
-    })
+    const mm = gsap.matchMedia()
 
-    // 2. The Matrix Rain: Condensation state
-    gsap.set(matrixRainRef.current, { 
-      autoAlpha: 0,
-      scale: 1.15, // Starts slightly scaled up (un-condensed)
-      clipPath: "inset(0% 0% 100% 0%)" // Hardware-accelerated mask hidden from bottom up
-    })
+    mm.add("(max-width: 1023px)", () => {
+      // ---------------------------------------------------------------------------
+      // PRE-RENDER SETUP
+      // ---------------------------------------------------------------------------
 
-    // 3. Corruption Layer & Shadow Shield: Completely invisible
-    gsap.set([corruptionLayerRef.current, volumetricShadowRef.current], { 
-      autoAlpha: 0 
-    })
+      // 1. The Payload: Set deep in Z-space, completely hidden.
+      gsap.set(unifiedPayloadRef.current, {
+        autoAlpha: 0,
+        z: -2500 // Start much deeper for the tunnel effect
+      })
 
-    // Create the master timeline linked to the user's scroll position
-    // Symmetrical Math: 0% (0s), 50% (3s), 100% (6s)
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: containerRef.current,
-        start: "top top",
-        end: "+=300%", // 300vh = 3 screen lengths
-        pin: pinRef.current,
-        // UI/UX FIX: Snappy scrub to remove floaty lag
-        scrub: 0.8, 
-        snap: {
-          snapTo: [0, 0.5, 1],
-          delay: 0.15, // Wait until thumb is completely done moving
-          duration: { min: 0.3, max: 0.8 }, 
-          ease: "power2.inOut" // Smooth, magnetic snap
-        },
-        // React State Sync (Approach B implementation with Ref Gatekeeper)
-        onUpdate: (self) => {
-          // If the user scrolls past the 48% mark (or snaps to it), fire the scramble!
-          // We use 0.48 to give it a tiny headstart right as the snap finishes settling
-          if (self.progress >= 0.48 && !bootStateRef.current) {
-            bootStateRef.current = true
-            setIsBooted(true)
-          } else if (self.progress < 0.48 && bootStateRef.current) {
-            // Reset the scramble if the user scrolls back up into space
-            bootStateRef.current = false
-            setIsBooted(false)
+      // 2. The Matrix Rain: Condensation state
+      gsap.set(matrixRainRef.current, {
+        autoAlpha: 0,
+        scale: 1.15, // Starts slightly scaled up (un-condensed)
+        clipPath: "inset(0% 0% 100% 0%)" // Hardware-accelerated mask hidden from bottom up
+      })
+
+      // 3. Corruption Layer & Shadow Shield: Completely invisible
+      gsap.set([corruptionLayerRef.current, volumetricShadowRef.current], {
+        autoAlpha: 0
+      })
+
+      // Create the master timeline linked to the user's scroll position
+      // Symmetrical Math: 0% (0s), 50% (3s), 100% (6s)
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top top",
+          end: "+=300%", // 300vh = 3 screen lengths
+          pin: pinRef.current,
+          // UI/UX FIX: Snappy scrub to remove floaty lag
+          scrub: 0.8,
+          snap: {
+            snapTo: [0, 0.5, 1],
+            delay: 0.15, // Wait until thumb is completely done moving
+            duration: { min: 0.3, max: 0.8 },
+            ease: "power2.inOut" // Smooth, magnetic snap
+          },
+          // React State Sync (Approach B implementation with Ref Gatekeeper)
+          onUpdate: (self) => {
+            // If the user scrolls past the 48% mark (or snaps to it), fire the scramble!
+            // We use 0.48 to give it a tiny headstart right as the snap finishes settling
+            if (self.progress >= 0.48 && !bootStateRef.current) {
+              bootStateRef.current = true
+              setIsBooted(true)
+            } else if (self.progress < 0.48 && bootStateRef.current) {
+              // Reset the scramble if the user scrolls back up into space
+              bootStateRef.current = false
+              setIsBooted(false)
+            }
           }
         }
+      })
+
+      // ---------------------------------------------------------------------------
+      // OVERLAPPING PHASES (0s to 3s)
+      // Phase 1 (Flythrough) runs 0s -> 2.5s
+      // Phase 2 (Reveal) runs 0.5s -> 3s
+      // ---------------------------------------------------------------------------
+
+      // Instantly fade out scroll hint
+      tl.to(scrollHintRef.current, { autoAlpha: 0, duration: 0.3, ease: "power2.out" }, 0)
+
+      // Dim the Global HUD
+      tl.to(hudWrapperRef.current, { autoAlpha: 0.3, duration: 1, ease: "power2.out" }, 0)
+
+      // Z-PARALLAX & FOCAL ILLUSION: Replace heavy blurs with micro-blurs + opacity fade
+      // This guarantees 60fps on mobile GPUs while keeping visceral depth
+
+      tl.to(topTextRef.current, {
+        z: 2200,
+        y: -500,
+        autoAlpha: 0,
+        filter: "blur(4px)", // Micro-blur
+        duration: 2.5,
+        ease: "power3.in"
+      }, 0)
+
+      tl.to(topActorRef.current, {
+        z: 1600,
+        y: -400,
+        x: -120,
+        autoAlpha: 0,
+        filter: "blur(6px)",
+        duration: 2.5,
+        ease: "power3.in"
+      }, 0)
+
+      tl.to(bottomTextRef.current, {
+        z: 2200,
+        y: 500,
+        autoAlpha: 0,
+        filter: "blur(4px)",
+        duration: 2.5,
+        ease: "power3.in"
+      }, 0)
+
+      tl.to(bottomActorRef.current, {
+        z: 1600,
+        y: 400,
+        x: 120,
+        autoAlpha: 0,
+        filter: "blur(6px)",
+        duration: 2.5,
+        ease: "power3.in"
+      }, 0)
+
+      // CORRUPTION LAYER masks the cross-fade
+      tl.to(corruptionLayerRef.current, {
+        autoAlpha: 0.85,
+        duration: 1.5,
+        ease: "power2.inOut"
+      }, 0.5)
+
+      // REVEAL: Rain condenses onto the glass (0.5s to 3s)
+      // Clip-path grows downwards like shooting lines of code
+      tl.to(matrixRainRef.current, {
+        autoAlpha: 1,
+        scale: 1, // Condenses
+        clipPath: "inset(0% 0% 0% 0%)", // Grows down to full screen
+        duration: 2.5,
+        ease: "power2.out"
+      }, 0.5)
+
+      // The Payload floats in from deep space, intersecting the flying actors
+      tl.to(unifiedPayloadRef.current, {
+        autoAlpha: 1,
+        z: 0,
+        duration: 2.5,
+        ease: "power3.out"
+      }, 0.5)
+
+      // Fade up volumetric shadow
+      tl.to(volumetricShadowRef.current, {
+        autoAlpha: 1,
+        duration: 2,
+        ease: "power2.out"
+      }, 1)
+
+      // Restore HUD
+      tl.to(hudWrapperRef.current, { autoAlpha: 1, duration: 1, ease: "power2.out" }, 2)
+
+      // ---------------------------------------------------------------------------
+      // PHASE 3: THE HOLD & RELEASE (3s to 6s)
+      // ---------------------------------------------------------------------------
+      // This perfectly spans the 50% -> 100% snap runway.
+      tl.to({}, { duration: 3 })
+
+      return () => {
+        bootStateRef.current = false
+        setIsBooted(false)
       }
     })
 
-    // ---------------------------------------------------------------------------
-    // OVERLAPPING PHASES (0s to 3s)
-    // Phase 1 (Flythrough) runs 0s -> 2.5s
-    // Phase 2 (Reveal) runs 0.5s -> 3s
-    // ---------------------------------------------------------------------------
-    
-    // Instantly fade out scroll hint
-    tl.to(scrollHintRef.current, { autoAlpha: 0, duration: 0.3, ease: "power2.out" }, 0)
-    
-    // Dim the Global HUD
-    tl.to(hudWrapperRef.current, { autoAlpha: 0.3, duration: 1, ease: "power2.out" }, 0) 
-
-    // Z-PARALLAX & FOCAL ILLUSION: Replace heavy blurs with micro-blurs + opacity fade
-    // This guarantees 60fps on mobile GPUs while keeping visceral depth
-
-    tl.to(topTextRef.current, {
-      z: 2200,
-      y: -500,
-      autoAlpha: 0,
-      filter: "blur(4px)", // Micro-blur
-      duration: 2.5,
-      ease: "power3.in"
-    }, 0)
-
-    tl.to(topActorRef.current, {
-      z: 1600,
-      y: -400,
-      x: -120,
-      autoAlpha: 0, 
-      filter: "blur(6px)", 
-      duration: 2.5,
-      ease: "power3.in" 
-    }, 0)
-
-    tl.to(bottomTextRef.current, {
-      z: 2200,
-      y: 500,
-      autoAlpha: 0,
-      filter: "blur(4px)",
-      duration: 2.5,
-      ease: "power3.in"
-    }, 0)
-
-    tl.to(bottomActorRef.current, {
-      z: 1600,
-      y: 400,
-      x: 120,
-      autoAlpha: 0,
-      filter: "blur(6px)",
-      duration: 2.5,
-      ease: "power3.in"
-    }, 0)
-
-    // CORRUPTION LAYER masks the cross-fade
-    tl.to(corruptionLayerRef.current, {
-      autoAlpha: 0.85, 
-      duration: 1.5,
-      ease: "power2.inOut"
-    }, 0.5)
-
-    // REVEAL: Rain condenses onto the glass (0.5s to 3s)
-    // Clip-path grows downwards like shooting lines of code
-    tl.to(matrixRainRef.current, {
-      autoAlpha: 1,
-      scale: 1, // Condenses
-      clipPath: "inset(0% 0% 0% 0%)", // Grows down to full screen
-      duration: 2.5,
-      ease: "power2.out"
-    }, 0.5)
-
-    // The Payload floats in from deep space, intersecting the flying actors
-    tl.to(unifiedPayloadRef.current, {
-      autoAlpha: 1, 
-      z: 0, 
-      duration: 2.5,
-      ease: "power3.out" 
-    }, 0.5)
-
-    // Fade up volumetric shadow
-    tl.to(volumetricShadowRef.current, {
-      autoAlpha: 1,
-      duration: 2,
-      ease: "power2.out"
-    }, 1)
-
-    // Restore HUD
-    tl.to(hudWrapperRef.current, { autoAlpha: 1, duration: 1, ease: "power2.out" }, 2) 
-
-    // ---------------------------------------------------------------------------
-    // PHASE 3: THE HOLD & RELEASE (3s to 6s)
-    // ---------------------------------------------------------------------------
-    // This perfectly spans the 50% -> 100% snap runway.
-    tl.to({}, { duration: 3 })
-
+    return () => mm.revert()
   }, { scope: containerRef }) // CRITICAL FIX: Removed dependencies array completely to prevent timeline destruction
 
   return (

@@ -57,6 +57,9 @@ export default function SplitHero() {
 
       mm.add("(min-width: 1024px)", () => {
         const { phase4ActorProfile, phase4LayerMode, actorPhaseMotionProfile } = HERO_VISUAL_STATE
+        const container = containerRef.current
+        const leftPanelEl = container?.querySelector(".panel-left-wrapper")
+        const rightPanelEl = container?.querySelector(".panel-right-wrapper")
 
         // Base desktop split state
         gsap.set(".panel-left-wrapper", { clipPath: "inset(0 50% 0 0)" })
@@ -73,7 +76,6 @@ export default function SplitHero() {
         })
 
         gsap.set(".matrix-rain-container", { "--bleed-progress": "0%" })
-        gsap.set(".s2-mobile-content", { opacity: 0 })
 
         gsap.set(".panel-left-wrapper .panel-desc", { opacity: 0, y: 8 })
         gsap.set(".panel-right-wrapper .panel-desc", { opacity: 0, y: 8 })
@@ -125,9 +127,6 @@ export default function SplitHero() {
 
           gsap.to(".hero-actor", { opacity: 1, filter: "grayscale(0%) brightness(1.3) contrast(1.1)", duration: 0.35, ease: "power2.out" })
         }
-
-        const leftPanelEl = document.querySelector(".panel-left-wrapper")
-        const rightPanelEl = document.querySelector(".panel-right-wrapper")
 
         leftPanelEl?.addEventListener("mouseenter", onMouseEnterLeft)
         leftPanelEl?.addEventListener("mouseleave", onMouseLeave)
@@ -406,19 +405,6 @@ export default function SplitHero() {
         }
       })
 
-      mm.add("(max-width: 1023px)", () => {
-        gsap.set(".s2-mobile-content", { opacity: 1 })
-        gsap.set(".matrix-rain-container", { "--bleed-progress": "100%" })
-        gsap.set(".corruption-layer", { opacity: 0.6 })
-        gsap.set(".hero-seam-container", { display: "none" })
-        gsap.set(".hero-actor-left", { xPercent: 8, scale: 0.9 })
-        gsap.set(".hero-actor-right", { xPercent: -8, scale: 0.82 })
-        gsap.set(".hero-actor", {
-          opacity: 0.75, // Increased for mobile
-          filter: "grayscale(65%) brightness(1.15) contrast(1.15)", // Increased brightness for mobile
-        })
-      })
-
       return () => mm.revert()
     },
     { scope: containerRef }
@@ -466,14 +452,6 @@ export default function SplitHero() {
 
         <SharedTopBar />
         <SharedBottomBar />
-
-        {/* Mobile view structure */}
-        <div className="s2-mobile-content absolute inset-0 z-30 flex flex-col items-center justify-center px-6 lg:hidden opacity-0">
-          <h2 className="text-[36px] font-medium leading-[1.1] text-center text-white font-serif mb-4 text-balance">
-            Brand, product, and intelligent systems. Built as one.
-          </h2>
-          <div className="text-white/35 font-mono text-[10px] tracking-[0.2em] mt-12 animate-bounce">↓ SCROLL TO EXPLORE</div>
-        </div>
 
         {/* Layer 1: Corruption */}
         <div className="corruption-layer absolute inset-0 z-[35] bg-black opacity-0 pointer-events-none" />
