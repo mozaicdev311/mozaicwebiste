@@ -14,21 +14,19 @@ export const SharedBackground = forwardRef<HTMLDivElement, { isMobile: boolean }
         <div
           className="canvas-left absolute inset-0"
           style={{
-            clipPath: isMobile ? "inset(0 0 0 0)" : "inset(0 50% 0 0)",
             opacity: isMobile ? 0.3 : 0.48,
           }}
         >
-          <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(255,255,255,0.02)_0%,rgba(255,255,255,0.008)_20%,rgba(0,0,0,0)_45%,rgba(0,0,0,0.9)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_50%,rgba(255,255,255,0.03)_0%,rgba(0,0,0,0)_60%)]" />
         </div>
 
         <div
           className="canvas-right absolute inset-0"
           style={{
-            clipPath: isMobile ? "inset(0 0 0 0)" : "inset(0 0 0 50%)",
             opacity: isMobile ? 0.3 : 0.48,
           }}
         >
-          <div className="absolute inset-0 bg-[linear-gradient(250deg,rgba(255,255,255,0.02)_0%,rgba(255,255,255,0.008)_20%,rgba(0,0,0,0)_45%,rgba(0,0,0,0.9)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_50%,rgba(255,255,255,0.03)_0%,rgba(0,0,0,0)_60%)]" />
         </div>
 
         <div
