@@ -19,7 +19,7 @@ if (typeof window !== "undefined") {
 function BootScrambleEyebrow({ isBooted }: { isBooted: boolean }) {
   const scrambledText = useScrambleText("SYSTEM.UNIFIED", isBooted)
   return (
-    <span className="text-white/90 text-[10px] font-mono tracking-[0.2em] font-bold uppercase drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]">
+    <span className="text-white/90 text-[10px] xl:text-[11px] font-mono tracking-[0.2em] font-bold uppercase drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]">
       {scrambledText}
     </span>
   )
@@ -32,14 +32,15 @@ function BootScrambleSubHeadline({ isBooted }: { isBooted: boolean }) {
     if (isBooted && !delayedBoot) {
       timeout = setTimeout(() => setDelayedBoot(true), 300)
     } else if (!isBooted && delayedBoot) {
-      setDelayedBoot(false)
+      // Use setTimeout with 0 to schedule the state update after the effect body runs
+      timeout = setTimeout(() => setDelayedBoot(false), 0)
     }
     return () => clearTimeout(timeout)
   }, [isBooted, delayedBoot])
 
   const scrambledText = useScrambleText("Built as one.", delayedBoot)
   return (
-    <span className="block text-[#00FF00]/90 mt-3 italic font-normal font-mono text-[20px] tracking-normal">
+    <span className="block text-[#00FF00]/90 mt-4 italic font-normal font-serif text-[28px] xl:text-[32px] tracking-normal drop-shadow-[0_0_12px_rgba(0,255,0,0.4)]">
       {scrambledText}
     </span>
   )
@@ -82,11 +83,12 @@ export default function DesktopHeroTest() {
   const isWarpingRef = useRef(false)
 
   // Optical Baselines (The perfect center points)
+  // Audited math: Pushed slightly wider to prevent overlap with central payload
   const BASE_VW = {
-    stuText: -22,
-    sysText: 22,
-    stuActor: -26,
-    sysActor: 26,
+    stuText: -24,
+    sysText: 24,
+    stuActor: -28,
+    sysActor: 28,
   }
 
   useGSAP(() => {
@@ -101,22 +103,24 @@ export default function DesktopHeroTest() {
         yPercent: -50,
       })
       
-      // Timeline Baseline (Z=0 is the glass)
-      // TL handles the big spatial fade-outs
-      gsap.set(tlStudioText.current, { z: 0, opacity: 1 })
-      gsap.set(tlSystemsText.current, { z: 0, opacity: 1 })
-      gsap.set(tlStudioActor.current, { z: 0, opacity: 1 }) 
-      gsap.set(tlSystemsActor.current, { z: 0, opacity: 1 }) 
+      // Timeline Baseline (TL handles the big spatial fade-outs)
+      // Avoided 'translateZ' to prevent Z-axis clipping through matrix grid.
+      // Replaced with Cinematic Depth of Field (Scale + Blur).
+      gsap.set(tlStudioText.current, { opacity: 1, scale: 1, filter: "blur(0px)" })
+      gsap.set(tlSystemsText.current, { opacity: 1, scale: 1, filter: "blur(0px)" })
+      gsap.set(tlStudioActor.current, { opacity: 1, scale: 1, filter: "blur(0px)", x: 0 }) 
+      gsap.set(tlSystemsActor.current, { opacity: 1, scale: 1, filter: "blur(0px)", x: 0 }) 
+      
       // Deep Space Baseline (Waiting behind the scenes)
-      gsap.set(tlPayload.current, { z: -3500, autoAlpha: 0 })
-      gsap.set(tlMatrixRain.current, { z: -1500, autoAlpha: 0 })
+      gsap.set(tlPayload.current, { autoAlpha: 0, scale: 1.25, filter: "blur(24px)" })
+      gsap.set(tlMatrixRain.current, { autoAlpha: 0, scale: 1.1 })
 
       // Hover Baseline (Setting the X coordinates safely here)
       // HV handles the local interaction opacities
       gsap.set(hvStudioText.current, { x: `${BASE_VW.stuText}vw`, scale: 1, opacity: 1 })
       gsap.set(hvSystemsText.current, { x: `${BASE_VW.sysText}vw`, scale: 1, opacity: 1 })
-      gsap.set(hvStudioActor.current, { x: `${BASE_VW.stuActor}vw`, scale: 1, opacity: 0.5 })
-      gsap.set(hvSystemsActor.current, { x: `${BASE_VW.sysActor}vw`, scale: 1, opacity: 0.4 })
+      gsap.set(hvStudioActor.current, { x: `${BASE_VW.stuActor}vw`, scale: 1, opacity: 0.8 })
+      gsap.set(hvSystemsActor.current, { x: `${BASE_VW.sysActor}vw`, scale: 1, opacity: 0.8 })
 
       // 2. Ambient Floating (The "Breathing" Space)
       gsap.to(".floater", {
@@ -157,105 +161,107 @@ export default function DesktopHeroTest() {
       window.addEventListener("mousemove", onMouseMove)
       window.addEventListener("mouseleave", onMouseLeave)
 
-      // 4. THE APPLE-GRADE LOCKED STATE TIMELINE
-      // This timeline is completely decoupled from the scroll wheel's exact position.
-      // It plays start-to-finish to give the transition time to breathe.
+      // 4. THE APPLE-GRADE MAGNETIC STORY TIMELINE
+      // Fix: Removed "double-easing" (using ease: "none" in tweens) so the scrub maps linearly to the scroll wheel.
+      // Trackpad Optimization: Trackpads have native OS-level momentum. A high scrub (like 1.2) creates a "molasses" 
+      // double-inertia effect. Lowering to 0.5 keeps chunky mouse wheels smooth but makes trackpads feel 1:1 responsive.
       const tl = gsap.timeline({
-        paused: true,
-        onStart: () => {
-          isWarpingRef.current = true
-          window.dispatchEvent(new CustomEvent("mozaic-warp-state", { detail: { isWarping: true } }))
-          
-          if (hitAreasRef.current) hitAreasRef.current.style.pointerEvents = "none"
-          
-          // Gracefully reset the HOVER nodes to baseline immediately when transition starts
-          gsap.to(hvStudioText.current, { x: `${BASE_VW.stuText}vw`, scale: 1, opacity: 1, duration: 0.4, ease: "power2.out" })
-          gsap.to(hvSystemsText.current, { x: `${BASE_VW.sysText}vw`, scale: 1, opacity: 1, duration: 0.4, ease: "power2.out" })
-          gsap.to(hvStudioActor.current, { x: `${BASE_VW.stuActor}vw`, scale: 1, opacity: 0.5, duration: 0.4, ease: "power2.out" })
-          gsap.to(hvSystemsActor.current, { x: `${BASE_VW.sysActor}vw`, scale: 1, opacity: 0.4, duration: 0.4, ease: "power2.out" })
-        },
-        onComplete: () => {
-          isWarpingRef.current = false
-          window.dispatchEvent(new CustomEvent("mozaic-warp-state", { detail: { isWarping: false } }))
-          bootStateRef.current = true
-          setIsBooted(true)
-        },
-        onReverseComplete: () => {
-          isWarpingRef.current = false
-          window.dispatchEvent(new CustomEvent("mozaic-warp-state", { detail: { isWarping: false } }))
-          bootStateRef.current = false
-          setIsBooted(false)
-          if (hitAreasRef.current) hitAreasRef.current.style.pointerEvents = "auto"
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top top",
+          end: "+=200%", // Reduced from 300% to tighten the transition zone
+          pin: pinRef.current,
+          scrub: 0.5, // Reduced for Trackpad responsiveness
+          fastScrollEnd: true, // If user flicks the trackpad hard, don't force a slow catch-up. Jump to end.
+          snap: {
+            snapTo: [0, 1], // Magnetically glides to State 1 or State 2
+            duration: { min: 0.4, max: 0.8 }, // Faster snap so it doesn't feel sluggish after OS momentum stops
+            delay: 0.1, // Wait just long enough for trackpad inertia to die
+            ease: "power3.inOut" // Apple's standard spring feel (expo is sometimes too jarring for short snaps)
+          },
+          onUpdate: (self) => {
+            const p = self.progress
+            const isWarp = p > 0.05 && p < 0.95
+
+            // State Edge Detection
+            if (isWarp !== isWarpingRef.current) {
+               isWarpingRef.current = isWarp
+               window.dispatchEvent(new CustomEvent("mozaic-warp-state", { detail: { isWarping: isWarp } }))
+               
+               if (isWarp && hitAreasRef.current) {
+                 hitAreasRef.current.style.pointerEvents = "none"
+                 
+                 // Gracefully reset the HOVER nodes to baseline immediately when transition starts
+                 gsap.to(hvStudioText.current, { x: `${BASE_VW.stuText}vw`, scale: 1, opacity: 1, duration: 0.4, ease: "power2.out" })
+                 gsap.to(hvSystemsText.current, { x: `${BASE_VW.sysText}vw`, scale: 1, opacity: 1, duration: 0.4, ease: "power2.out" })
+                 // Boost actor hover-layer opacity during warp so they shine in State 2
+                 gsap.to(hvStudioActor.current, { x: `${BASE_VW.stuActor}vw`, scale: 1, opacity: 1, duration: 0.4, ease: "power2.out" })
+                 gsap.to(hvSystemsActor.current, { x: `${BASE_VW.sysActor}vw`, scale: 1, opacity: 1, duration: 0.4, ease: "power2.out" })
+                 
+               } else if (!isWarp && hitAreasRef.current) {
+                 hitAreasRef.current.style.pointerEvents = "auto"
+               }
+            }
+            
+            // Trigger boot scramble exactly as payload hits peak opacity
+            if (p >= 0.75 && !bootStateRef.current) {
+              bootStateRef.current = true; setIsBooted(true)
+            } else if (p < 0.75 && bootStateRef.current) {
+              bootStateRef.current = false; setIsBooted(false)
+            }
+          }
         }
       })
 
-      // -- THE CHOREOGRAPHY (Real Time Durations, No Scrub) --
+      // -- THE CHOREOGRAPHY (Linear Timeline for Perfect Scrubbing) --
+      // MUST use ease: "none" when tied to a scrubbed ScrollTrigger. 
+      // This prevents "muddy" scroll behavior where tweens slow down arbitrarily.
       
-      // Phase 1: Foreground vanishes (Duration: 0.8s)
+      // Phase 1: Foreground vanishes with dramatic motion blur (0.0 to 0.4)
       tl.to([tlStudioText.current, tlSystemsText.current], { 
-        z: 2500, 
-        scale: 1.5, 
+        scale: 2.2, 
+        filter: "blur(20px)", 
         autoAlpha: 0, 
-        duration: 0.8, 
-        ease: "power2.in" 
+        duration: 0.4, 
+        ease: "none" // CRITICAL FIX: Linear mapping to scroll
       }, 0)
 
-      // Phase 2: Actors drift back to make room (Duration: 1.2s, starts slightly after Phase 1 begins)
-      // Note on Math: The hover wrappers (hv*) already sit at -26vw / +26vw. 
-      // By moving the timeline wrappers (tl*) by -12vw, their final screen position is -38vw.
-      // This perfectly frames the payload without pushing them off-screen.
+      // Phase 2: Actors become out-of-focus background pillars (0.1 to 0.8)
       tl.to(tlStudioActor.current, { 
-        z: -400, 
-        x: "-12vw", 
-        rotationY: 25, // Turn inward to frame the payload
-        opacity: 0.35, 
-        duration: 1.2, 
-        ease: "power3.inOut" 
-      }, 0.2)
+        x: "-8vw", 
+        scale: 0.75, 
+        rotationY: 35, 
+        filter: "blur(0px)", 
+        opacity: 0.9, 
+        duration: 0.7, 
+        ease: "none" 
+      }, 0.1)
       
       tl.to(tlSystemsActor.current, { 
-        z: -400, 
-        x: "12vw", 
-        rotationY: -25, // Turn inward to frame the payload
-        opacity: 0.35, 
-        duration: 1.2, 
-        ease: "power3.inOut" 
-      }, 0.2)
+        x: "8vw", 
+        scale: 0.75, 
+        rotationY: -35, 
+        filter: "blur(0px)", 
+        opacity: 0.9, 
+        duration: 0.7, 
+        ease: "none" 
+      }, 0.1)
 
-      // Phase 3: The Payload Emerges (Duration: 1.4s)
-      // Starts deeper, fades in quickly, settles slowly into the center.
-      tl.fromTo(tlPayload.current, 
-        { z: -800, scale: 0.85, autoAlpha: 0 },
-        { z: 0, scale: 1, autoAlpha: 1, duration: 1.4, ease: "power3.out" }, 
-        0.4
-      )
+      // Phase 3: The Payload Emerges (0.4 to 1.0)
+      tl.to(tlPayload.current, { 
+        scale: 1, 
+        filter: "blur(0px)",
+        autoAlpha: 1, 
+        duration: 0.6, 
+        ease: "none" 
+      }, 0.4)
       
-      // The Matrix Rain organically blooms into existence instead of flying forward
-      tl.fromTo(tlMatrixRain.current,
-        { scale: 1.1, autoAlpha: 0 },
-        { scale: 1, autoAlpha: 1, duration: 1.6, ease: "power2.out" }, 
-        0.3
-      )
-
-      // -- THE SCROLL TRIGGERS --
-      
-      // 1. The Pin: This locks the screen in place so the user has "runway" to scroll 
-      // without the page moving while the animation plays.
-      ScrollTrigger.create({
-        trigger: containerRef.current,
-        start: "top top",
-        end: "+=200%", // 2 screens of scroll buffer
-        pin: pinRef.current,
-      })
-
-      // 2. The Trigger: Fires the locked state transition
-      ScrollTrigger.create({
-        trigger: containerRef.current,
-        start: "top -50px", // The exact moment they scroll down
-        end: "+=200%",
-        onEnter: () => tl.play(),        // Scroll down -> Play forward start-to-finish
-        onLeaveBack: () => tl.reverse(), // Scroll back up -> Reverse start-to-finish
-      })
+      tl.to(tlMatrixRain.current, { 
+        scale: 1, 
+        autoAlpha: 1, 
+        duration: 0.6, 
+        ease: "none" 
+      }, 0.4)
 
       return () => {
         window.removeEventListener("mousemove", onMouseMove)
@@ -275,25 +281,25 @@ export default function DesktopHeroTest() {
   const hoverLeft = () => {
     if (isWarpingRef.current) return
     // Animate the Hover Layer (X, Scale, Opacity) strictly on hv*
-    gsap.to(hvStudioActor.current, { x: "-18vw", scale: 1.05, opacity: 0.8, duration: hoverDuration, ease: hoverEase })
+    gsap.to(hvStudioActor.current, { x: "-20vw", scale: 1.05, opacity: 1, duration: hoverDuration, ease: hoverEase })
     gsap.to(hvStudioText.current, { x: "-18vw", scale: 1.05, opacity: 1, duration: hoverDuration, ease: hoverEase })
-    gsap.to(hvSystemsActor.current, { x: "32vw", scale: 0.95, opacity: 0.15, duration: hoverDuration, ease: hoverEase })
-    gsap.to(hvSystemsText.current, { x: "32vw", scale: 0.95, opacity: 0.3, duration: hoverDuration, ease: hoverEase })
+    gsap.to(hvSystemsActor.current, { x: "36vw", scale: 0.95, opacity: 0.25, duration: hoverDuration, ease: hoverEase })
+    gsap.to(hvSystemsText.current, { x: "34vw", scale: 0.95, opacity: 0.3, duration: hoverDuration, ease: hoverEase })
   }
   
   const hoverRight = () => {
     if (isWarpingRef.current) return
-    gsap.to(hvSystemsActor.current, { x: "18vw", scale: 1.05, opacity: 0.8, duration: hoverDuration, ease: hoverEase })
+    gsap.to(hvSystemsActor.current, { x: "20vw", scale: 1.05, opacity: 1, duration: hoverDuration, ease: hoverEase })
     gsap.to(hvSystemsText.current, { x: "18vw", scale: 1.05, opacity: 1, duration: hoverDuration, ease: hoverEase })
-    gsap.to(hvStudioActor.current, { x: "-32vw", scale: 0.95, opacity: 0.15, duration: hoverDuration, ease: hoverEase })
-    gsap.to(hvStudioText.current, { x: "-32vw", scale: 0.95, opacity: 0.3, duration: hoverDuration, ease: hoverEase })
+    gsap.to(hvStudioActor.current, { x: "-36vw", scale: 0.95, opacity: 0.25, duration: hoverDuration, ease: hoverEase })
+    gsap.to(hvStudioText.current, { x: "-34vw", scale: 0.95, opacity: 0.3, duration: hoverDuration, ease: hoverEase })
   }
   
   const resetHover = () => {
     if (isWarpingRef.current) return
-    gsap.to(hvStudioActor.current, { x: `${BASE_VW.stuActor}vw`, scale: 1, opacity: 0.5, duration: hoverDuration, ease: hoverEase })
+    gsap.to(hvStudioActor.current, { x: `${BASE_VW.stuActor}vw`, scale: 1, opacity: 0.8, duration: hoverDuration, ease: hoverEase })
     gsap.to(hvStudioText.current, { x: `${BASE_VW.stuText}vw`, scale: 1, opacity: 1, duration: hoverDuration, ease: hoverEase })
-    gsap.to(hvSystemsActor.current, { x: `${BASE_VW.sysActor}vw`, scale: 1, opacity: 0.4, duration: hoverDuration, ease: hoverEase })
+    gsap.to(hvSystemsActor.current, { x: `${BASE_VW.sysActor}vw`, scale: 1, opacity: 0.8, duration: hoverDuration, ease: hoverEase })
     gsap.to(hvSystemsText.current, { x: `${BASE_VW.sysText}vw`, scale: 1, opacity: 1, duration: hoverDuration, ease: hoverEase })
   }
 
@@ -317,8 +323,9 @@ export default function DesktopHeroTest() {
         
         {/* Invisible Hit Areas */}
         <div ref={hitAreasRef} className="absolute inset-0 z-[90] flex">
-          <div className="w-1/2 h-full cursor-pointer" onMouseEnter={hoverLeft} onMouseLeave={resetHover} />
-          <div className="w-1/2 h-full cursor-pointer" onMouseEnter={hoverRight} onMouseLeave={resetHover} />
+          <div className="w-[35%] h-full cursor-pointer" onMouseEnter={hoverLeft} onMouseLeave={resetHover} />
+          <div className="w-[30%] h-full cursor-pointer" onMouseEnter={resetHover} />
+          <div className="w-[35%] h-full cursor-pointer" onMouseEnter={hoverRight} onMouseLeave={resetHover} />
         </div>
         
         {/* Master Scene */}
@@ -381,37 +388,36 @@ export default function DesktopHeroTest() {
                 {/* Massive organic backdrop filter to ensure text readability without killing background */}
                 {/* Tightly scoped to the payload so it doesn't bleed over and swallow the ASCII actors */}
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none -z-10">
-                  <div className="w-[120%] h-[90%] bg-black/60 blur-[100px] rounded-[100%]" />
-                  <div className="absolute w-[90%] h-[70%] bg-black/80 blur-[60px] rounded-[100%]" />
+                  <div className="w-[100%] h-[70%] bg-black/70 blur-[80px] rounded-[100%]" />
+                  <div className="absolute w-[80%] h-[50%] bg-black/90 blur-[40px] rounded-[100%]" />
                 </div>
 
                 <div className="relative z-10 w-full flex flex-col items-center" style={{ WebkitFontSmoothing: "antialiased" }}>
                   <div className="flex items-center justify-center gap-4 w-full mb-8">
-                    <div className="flex-1 h-px bg-gradient-to-r from-transparent to-[#00FF00]/40 max-w-[80px]" />
+                    <div className="flex-1 h-px bg-gradient-to-r from-transparent to-[#00FF00]/40 max-w-[120px]" />
                     <BootScrambleEyebrow isBooted={isBooted} />
-                    <div className="flex-1 h-px bg-gradient-to-l from-transparent to-[#00FF00]/40 max-w-[80px]" />
+                    <div className="flex-1 h-px bg-gradient-to-l from-transparent to-[#00FF00]/40 max-w-[120px]" />
                   </div>
 
-                  <h1 className="text-[48px] xl:text-[68px] leading-[1.05] font-medium tracking-tight text-white font-serif mb-8 text-balance drop-shadow-xl">
+                  <h1 className="text-[52px] xl:text-[72px] leading-[1.05] font-medium tracking-tight text-white font-serif mb-8 text-balance drop-shadow-2xl">
                     Brand, product, and intelligent systems.
                     <BootScrambleSubHeadline isBooted={isBooted} />
                   </h1>
 
-                  <p className="text-[15px] leading-[1.6] font-mono text-white/50 mb-14 max-w-[600px] tracking-wide text-balance">
+                  <p className="text-[16px] xl:text-[18px] leading-[1.6] font-mono text-white/50 mb-14 max-w-[640px] tracking-wide text-balance">
                     One operating team. Led by founders. Backed by specialists. We build complete digital systems.
                   </p>
 
                   <div className="flex items-center justify-center gap-6 w-full">
-                    <Link href="/contact" className="group relative px-10 py-5 bg-[#00FF00] text-black font-mono text-[13px] font-bold tracking-[0.1em] overflow-hidden active:scale-[0.98] transition-all duration-500 hover:shadow-[0_0_20px_rgba(0,255,0,0.4)]">
+                    <Link href="/contact" className="group relative px-10 py-5 bg-[#00FF00] text-black font-mono text-[13px] font-bold tracking-[0.1em] overflow-hidden active:scale-[0.98] transition-all duration-500 hover:shadow-[0_0_24px_rgba(0,255,0,0.4)]">
                       <div className="absolute inset-0 bg-white -translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-out" />
                       <span className="relative z-10">START A PROJECT</span>
                     </Link>
                     
-                    <Link href="#work" className="group relative px-10 py-5 border border-white/20 text-white font-mono text-[13px] tracking-[0.1em] overflow-hidden active:scale-[0.98] transition-all duration-500">
+                    <Link href="#work" className="group relative px-10 py-5 border border-white/20 text-white font-mono text-[13px] tracking-[0.1em] overflow-hidden active:scale-[0.98] transition-all duration-500 hover:border-white/40 hover:bg-white/5">
                       <span className="relative z-10">VIEW WORK</span>
                       <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0" />
                     </Link>
                   </div>
                 </div>
@@ -425,15 +431,15 @@ export default function DesktopHeroTest() {
           <div ref={tlStudioText} className="absolute anchor-center z-[30] w-[35vw] max-w-[480px]" style={{ willChange: "transform, opacity" }}>
             <div ref={hvStudioText} className="w-full h-full" style={{ willChange: "transform" }}>
               <div className="floater w-full h-full" style={{ willChange: "transform" }}>
-                <div ref={prlxStudioText} className="w-full h-full drop-shadow-[0_4px_24px_rgba(0,0,0,0.8)] text-left" style={{ WebkitFontSmoothing: "antialiased" }}>
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="text-[#00FF00] text-[10px] font-mono tracking-[0.3em] font-bold">── 01</span>
-                    <span className="text-white text-[10px] font-mono tracking-widest uppercase">Studio</span>
+                <div ref={prlxStudioText} className="w-full h-full drop-shadow-[0_4px_32px_rgba(0,0,0,0.8)] text-left" style={{ WebkitFontSmoothing: "antialiased" }}>
+                  <div className="flex items-center gap-3 mb-6">
+                    <span className="text-[#00FF00] text-[11px] font-mono tracking-[0.3em] font-bold">── 01</span>
+                    <span className="text-white text-[11px] font-mono tracking-widest uppercase">Studio</span>
                   </div>
-                  <h2 className="text-[48px] xl:text-[56px] leading-[1.05] font-medium tracking-tight text-white mb-6 text-balance font-serif">
+                  <h2 className="text-[52px] xl:text-[64px] leading-[1.05] font-medium tracking-tight text-white mb-6 text-balance font-serif">
                     Brand systems with signal.
                   </h2>
-                  <p className="text-[14px] leading-[1.6] font-mono text-white/60 max-w-[380px]">
+                  <p className="text-[15px] xl:text-[16px] leading-[1.6] font-mono text-white/60 max-w-[380px]">
                     Identity, campaigns, film, and creative direction at global brand level.
                   </p>
                 </div>
@@ -444,15 +450,15 @@ export default function DesktopHeroTest() {
           <div ref={tlSystemsText} className="absolute anchor-center z-[30] w-[35vw] max-w-[480px]" style={{ willChange: "transform, opacity" }}>
             <div ref={hvSystemsText} className="w-full h-full" style={{ willChange: "transform" }}>
               <div className="floater w-full h-full" style={{ willChange: "transform" }}>
-                <div ref={prlxSystemsText} className="w-full h-full flex flex-col items-end text-right drop-shadow-[0_4px_24px_rgba(0,0,0,0.8)]" style={{ WebkitFontSmoothing: "antialiased" }}>
-                  <div className="flex items-center justify-end gap-3 mb-4">
-                    <span className="text-white text-[10px] font-mono tracking-widest uppercase">Product & Systems</span>
-                    <span className="text-[#00FF00] text-[10px] font-mono tracking-[0.3em] font-bold">02 ──</span>
+                <div ref={prlxSystemsText} className="w-full h-full flex flex-col items-end text-right drop-shadow-[0_4px_32px_rgba(0,0,0,0.8)]" style={{ WebkitFontSmoothing: "antialiased" }}>
+                  <div className="flex items-center justify-end gap-3 mb-6">
+                    <span className="text-white text-[11px] font-mono tracking-widest uppercase">Product & Systems</span>
+                    <span className="text-[#00FF00] text-[11px] font-mono tracking-[0.3em] font-bold">02 ──</span>
                   </div>
-                  <h2 className="text-[48px] xl:text-[56px] leading-[1.05] font-medium tracking-tight text-white mb-6 text-balance font-serif">
+                  <h2 className="text-[52px] xl:text-[64px] leading-[1.05] font-medium tracking-tight text-white mb-6 text-balance font-serif">
                     Software that can carry the business.
                   </h2>
-                  <p className="text-[14px] leading-[1.6] font-mono text-white/60 max-w-[380px]">
+                  <p className="text-[15px] xl:text-[16px] leading-[1.6] font-mono text-white/60 max-w-[380px]">
                     Platforms, intelligent systems, and architecture built for real-world use.
                   </p>
                 </div>
