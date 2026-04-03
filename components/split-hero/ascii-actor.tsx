@@ -31,8 +31,25 @@ export function AsciiActor({ className, videoSrc, tuning }: AsciiActorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const animationFrameRef = useRef<number | null>(null)
+  
+  // Performance Throttle State
+  const isPausedRef = useRef(false)
 
   useEffect(() => {
+    // -----------------------------------------------------
+    // CPU THROTTLE: Listen for cinematic warp to freeze GPU
+    // -----------------------------------------------------
+    const handleWarpState = (e: any) => {
+      isPausedRef.current = e.detail.isWarping;
+      if (e.detail.isWarping && videoRef.current) {
+        videoRef.current.pause();
+      } else if (!e.detail.isWarping && videoRef.current) {
+        videoRef.current.play().catch(() => {});
+      }
+    };
+    window.addEventListener("mozaic-warp-state", handleWarpState);
+    // -----------------------------------------------------
+
     const container = containerRef.current
     const canvas = canvasRef.current
     const video = videoRef.current
@@ -76,6 +93,14 @@ export function AsciiActor({ className, videoSrc, tuning }: AsciiActorProps) {
     void video.play().catch(() => {})
 
     const renderFrame = () => {
+      // -----------------------------------------------------
+      // PERFORMANCE LOCK: Skip heavy calculations if warping
+      // -----------------------------------------------------
+      if (isPausedRef.current) {
+        animationFrameRef.current = requestAnimationFrame(renderFrame)
+        return
+      }
+
       const width = canvas.width
       const height = canvas.height
 
@@ -142,6 +167,7 @@ export function AsciiActor({ className, videoSrc, tuning }: AsciiActorProps) {
     animationFrameRef.current = requestAnimationFrame(renderFrame)
 
     return () => {
+      window.removeEventListener("mozaic-warp-state", handleWarpState)
       resizeObserver.disconnect()
       video.removeEventListener("timeupdate", keepLoopSeamless)
 
