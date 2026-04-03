@@ -51,9 +51,6 @@ export default function MainContent() {
         }
       `}} />
       
-      <NoiseOverlay />
-      <ScanlineOverlay />
-      
       <StorytellingBridge label="SYSTEM.INIT" />
       <Section02Problem />
       

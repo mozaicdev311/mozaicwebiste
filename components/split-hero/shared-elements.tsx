@@ -1,6 +1,6 @@
 "use client"
 
-import { forwardRef } from "react"
+import { forwardRef, useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import NavMenu from "@/components/ui/menu-hover-effects"
@@ -53,7 +53,7 @@ export const SharedTopBar = forwardRef<HTMLDivElement, {}>((props, ref) => {
             alt="MOZAIC"
             width={140}
             height={48}
-            className="w-auto brightness-0 invert h-14"
+            className="w-auto brightness-0 invert h-14 glitch-hover"
           />
           <div className="h-3 lg:h-4 w-px bg-white/40"></div>
           <span className="text-white/60 text-[8px] lg:text-[10px] font-mono">EST. 2026</span>
@@ -70,6 +70,27 @@ SharedTopBar.displayName = "SharedTopBar"
 
 export const SharedBottomBar = forwardRef<HTMLDivElement, {}>(
   ({}, ref) => {
+    const [systemStatus, setSystemStatus] = useState("SYSTEM.ACTIVE")
+    const [isWarping, setIsWarping] = useState(false)
+
+    useEffect(() => {
+      const handleWarp = (e: CustomEvent) => {
+        setIsWarping(e.detail.isWarping)
+        if (e.detail.isWarping) {
+          setSystemStatus("CALCULATING_SYNTHESIS...")
+        } else {
+          if (e.detail.isBooted) {
+            setSystemStatus("STATUS: UNIFIED")
+          } else {
+            setSystemStatus("SYSTEM.ACTIVE")
+          }
+        }
+      }
+
+      window.addEventListener("mozaic-warp-state" as any, handleWarp)
+      return () => window.removeEventListener("mozaic-warp-state" as any, handleWarp)
+    }, [])
+
     return (
       <div
         ref={ref}
@@ -78,7 +99,9 @@ export const SharedBottomBar = forwardRef<HTMLDivElement, {}>(
       >
         <div className="container mx-auto px-4 lg:px-8 py-2 lg:py-3 flex items-center justify-between pointer-events-auto">
           <div className="flex items-center gap-3 lg:gap-6 text-[8px] lg:text-[9px] font-mono text-white/50 w-1/3">
-            <span className="min-w-[120px] system-status-text">SYSTEM.ACTIVE</span>
+            <span className={`min-w-[120px] system-status-text transition-colors duration-300 ${isWarping ? "text-[#00FF00] animate-pulse" : ""}`}>
+              {systemStatus}
+            </span>
             <div className="hidden lg:flex gap-1 h-3 items-end progress-bars">
               {Array.from({ length: 8 }).map((_, i) => {
                 return (

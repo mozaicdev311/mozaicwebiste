@@ -10,7 +10,7 @@ import { AsciiAtlasActor } from "@/components/split-hero/ascii-atlas-actor"
 import { AsciiVitruvianActor } from "@/components/split-hero/ascii-vitruvian-actor"
 import { SharedTopBar, SharedBottomBar, SharedBackground } from "@/components/split-hero/shared-elements"
 import { FallingPattern } from "@/components/ui/falling-pattern"
-import { useScrambleText } from "@/components/landing/ui/Shared"
+import { useScrambleText, Crosshair } from "@/components/landing/ui/Shared"
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, useGSAP)
@@ -19,7 +19,7 @@ if (typeof window !== "undefined") {
 function BootScrambleEyebrow({ isBooted }: { isBooted: boolean }) {
   const scrambledText = useScrambleText("SYSTEM.UNIFIED", isBooted)
   return (
-    <span className="text-white/90 text-[10px] xl:text-[11px] font-mono tracking-[0.2em] font-bold uppercase drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]">
+    <span className="text-white/90 font-mono text-[10px] tracking-[0.2em] font-bold uppercase drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]">
       {scrambledText}
     </span>
   )
@@ -40,8 +40,11 @@ function BootScrambleSubHeadline({ isBooted }: { isBooted: boolean }) {
 
   const scrambledText = useScrambleText("Built as one.", delayedBoot)
   return (
-    <span className="block text-[#00FF00]/90 mt-4 italic font-normal font-serif text-[28px] xl:text-[32px] tracking-normal drop-shadow-[0_0_12px_rgba(0,255,0,0.4)]">
+    <span className="block text-white/50 mt-4 font-mono text-[16px] xl:text-[18px] tracking-widest uppercase">
       {scrambledText}
+      {isBooted && delayedBoot && (
+        <span className="inline-block w-3 h-[1em] bg-white/70 align-middle ml-2 animate-pulse" />
+      )}
     </span>
   )
 }
@@ -79,6 +82,7 @@ export default function DesktopHeroTest() {
 
   // State
   const [isBooted, setIsBooted] = useState(false)
+  const [hoverSide, setHoverSide] = useState<'left' | 'right' | null>(null)
   const bootStateRef = useRef(false)
   const isWarpingRef = useRef(false)
 
@@ -162,9 +166,6 @@ export default function DesktopHeroTest() {
       window.addEventListener("mouseleave", onMouseLeave)
 
       // 4. THE APPLE-GRADE MAGNETIC STORY TIMELINE
-      // Fix: Removed "double-easing" (using ease: "none" in tweens) so the scrub maps linearly to the scroll wheel.
-      // Trackpad Optimization: Trackpads have native OS-level momentum. A high scrub (like 1.2) creates a "molasses" 
-      // double-inertia effect. Lowering to 0.5 keeps chunky mouse wheels smooth but makes trackpads feel 1:1 responsive.
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
@@ -172,21 +173,26 @@ export default function DesktopHeroTest() {
           end: "+=200%", // Reduced from 300% to tighten the transition zone
           pin: pinRef.current,
           scrub: 0.5, // Reduced for Trackpad responsiveness
-          fastScrollEnd: true, // If user flicks the trackpad hard, don't force a slow catch-up. Jump to end.
+          fastScrollEnd: true, 
           snap: {
             snapTo: [0, 1], // Magnetically glides to State 1 or State 2
-            duration: { min: 0.4, max: 0.8 }, // Faster snap so it doesn't feel sluggish after OS momentum stops
-            delay: 0.1, // Wait just long enough for trackpad inertia to die
-            ease: "power3.inOut" // Apple's standard spring feel (expo is sometimes too jarring for short snaps)
+            duration: { min: 0.4, max: 0.8 }, 
+            delay: 0.1, 
+            ease: "power3.inOut" 
           },
           onUpdate: (self) => {
             const p = self.progress
             const isWarp = p > 0.05 && p < 0.95
+            const isBootedNow = p >= 0.75
 
             // State Edge Detection
             if (isWarp !== isWarpingRef.current) {
                isWarpingRef.current = isWarp
-               window.dispatchEvent(new CustomEvent("mozaic-warp-state", { detail: { isWarping: isWarp } }))
+               
+               // Dispatch with extra payload info so bottom bar can react perfectly
+               window.dispatchEvent(new CustomEvent("mozaic-warp-state", { 
+                 detail: { isWarping: isWarp, isBooted: isBootedNow } 
+               }))
                
                if (isWarp && hitAreasRef.current) {
                  hitAreasRef.current.style.pointerEvents = "none"
@@ -204,10 +210,16 @@ export default function DesktopHeroTest() {
             }
             
             // Trigger boot scramble exactly as payload hits peak opacity
-            if (p >= 0.75 && !bootStateRef.current) {
+            if (isBootedNow && !bootStateRef.current) {
               bootStateRef.current = true; setIsBooted(true)
-            } else if (p < 0.75 && bootStateRef.current) {
+              if (!isWarpingRef.current) {
+                window.dispatchEvent(new CustomEvent("mozaic-warp-state", { detail: { isWarping: false, isBooted: true } }))
+              }
+            } else if (!isBootedNow && bootStateRef.current) {
               bootStateRef.current = false; setIsBooted(false)
+              if (!isWarpingRef.current) {
+                window.dispatchEvent(new CustomEvent("mozaic-warp-state", { detail: { isWarping: false, isBooted: false } }))
+              }
             }
           }
         }
@@ -263,6 +275,30 @@ export default function DesktopHeroTest() {
         ease: "none" 
       }, 0.4)
 
+      // 5. The Flattening (Transition out of Hero)
+      gsap.to(pinRef.current, {
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "bottom bottom",
+          end: "bottom top",
+          scrub: true,
+        },
+        scale: 0.95,
+        borderBottomColor: "rgba(255,255,255,0.2)",
+        ease: "none"
+      })
+
+      gsap.to(tlMatrixRain.current, {
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "bottom bottom",
+          end: "bottom top",
+          scrub: true,
+        },
+        opacity: 0,
+        ease: "none"
+      })
+
       return () => {
         window.removeEventListener("mousemove", onMouseMove)
         window.removeEventListener("mouseleave", onMouseLeave)
@@ -280,6 +316,7 @@ export default function DesktopHeroTest() {
   
   const hoverLeft = () => {
     if (isWarpingRef.current) return
+    setHoverSide('left')
     // Animate the Hover Layer (X, Scale, Opacity) strictly on hv*
     gsap.to(hvStudioActor.current, { x: "-20vw", scale: 1.05, opacity: 1, duration: hoverDuration, ease: hoverEase })
     gsap.to(hvStudioText.current, { x: "-18vw", scale: 1.05, opacity: 1, duration: hoverDuration, ease: hoverEase })
@@ -289,6 +326,7 @@ export default function DesktopHeroTest() {
   
   const hoverRight = () => {
     if (isWarpingRef.current) return
+    setHoverSide('right')
     gsap.to(hvSystemsActor.current, { x: "20vw", scale: 1.05, opacity: 1, duration: hoverDuration, ease: hoverEase })
     gsap.to(hvSystemsText.current, { x: "18vw", scale: 1.05, opacity: 1, duration: hoverDuration, ease: hoverEase })
     gsap.to(hvStudioActor.current, { x: "-36vw", scale: 0.95, opacity: 0.25, duration: hoverDuration, ease: hoverEase })
@@ -297,6 +335,7 @@ export default function DesktopHeroTest() {
   
   const resetHover = () => {
     if (isWarpingRef.current) return
+    setHoverSide(null)
     gsap.to(hvStudioActor.current, { x: `${BASE_VW.stuActor}vw`, scale: 1, opacity: 0.8, duration: hoverDuration, ease: hoverEase })
     gsap.to(hvStudioText.current, { x: `${BASE_VW.stuText}vw`, scale: 1, opacity: 1, duration: hoverDuration, ease: hoverEase })
     gsap.to(hvSystemsActor.current, { x: `${BASE_VW.sysActor}vw`, scale: 1, opacity: 0.8, duration: hoverDuration, ease: hoverEase })
@@ -312,7 +351,7 @@ export default function DesktopHeroTest() {
       */}
       <div 
         ref={pinRef} 
-        className="h-[100vh] w-full relative overflow-hidden" 
+        className="h-[100vh] w-full relative overflow-hidden border-b border-transparent origin-bottom" 
         style={{ perspective: "2000px", contain: "paint layout" }}
       >
         <div className="absolute inset-0 z-[100] pointer-events-none flex flex-col justify-between mix-blend-screen">
@@ -320,6 +359,12 @@ export default function DesktopHeroTest() {
           <div className="flex-1" />
           <SharedBottomBar />
         </div>
+        
+        {/* HUD Crosshairs identical to Section02Problem */}
+        <Crosshair className="-top-3 -left-3 z-[110]" />
+        <Crosshair className="-top-3 -right-3 z-[110]" />
+        <Crosshair className="-bottom-3 -left-3 z-[110]" />
+        <Crosshair className="-bottom-3 -right-3 z-[110]" />
         
         {/* Invisible Hit Areas */}
         <div ref={hitAreasRef} className="absolute inset-0 z-[90] flex">
@@ -363,8 +408,9 @@ export default function DesktopHeroTest() {
           <div ref={tlStudioActor} className="absolute anchor-center z-[10] w-[40vw] h-[40vw]" style={{ willChange: "transform, opacity" }}>
             <div ref={hvStudioActor} className="w-full h-full" style={{ willChange: "transform" }}>
               <div className="floater w-full h-full" style={{ willChange: "transform" }}>
-                <div ref={prlxStudioActor} className="w-full h-full" style={{ willChange: "transform" }}>
+                <div ref={prlxStudioActor} className="w-full h-full group relative" data-active={hoverSide === 'left' ? "true" : undefined} style={{ willChange: "transform" }}>
                   <AsciiAtlasActor className="w-full h-full object-contain" />
+                  <div className="laser-scan"></div>
                 </div>
               </div>
             </div>
@@ -373,8 +419,9 @@ export default function DesktopHeroTest() {
           <div ref={tlSystemsActor} className="absolute anchor-center z-[10] w-[40vw] h-[40vw]" style={{ willChange: "transform, opacity" }}>
             <div ref={hvSystemsActor} className="w-full h-full" style={{ willChange: "transform" }}>
               <div className="floater w-full h-full" style={{ willChange: "transform" }}>
-                <div ref={prlxSystemsActor} className="w-full h-full" style={{ willChange: "transform" }}>
+                <div ref={prlxSystemsActor} className="w-full h-full group relative" data-active={hoverSide === 'right' ? "true" : undefined} style={{ willChange: "transform" }}>
                   <AsciiVitruvianActor className="w-full h-full object-contain" />
+                  <div className="laser-scan"></div>
                 </div>
               </div>
             </div>
@@ -382,7 +429,7 @@ export default function DesktopHeroTest() {
 
           {/* Payload (Emerging Centerpiece - Z:20) */}
           <div ref={tlPayload} className="absolute anchor-center z-[20] w-[100vw] h-[100vh] flex flex-col items-center justify-center pointer-events-auto" style={{ willChange: "transform, opacity" }}>
-            <div className="floater w-full h-full flex items-center justify-center" style={{ willChange: "transform" }}>
+            <div className="w-full h-full flex items-center justify-center" style={{ willChange: "transform" }}>
               <div ref={prlxPayload} className="w-full max-w-[800px] flex flex-col items-center text-center relative" style={{ willChange: "transform" }}>
                 
                 {/* Massive organic backdrop filter to ensure text readability without killing background */}
@@ -409,15 +456,12 @@ export default function DesktopHeroTest() {
                   </p>
 
                   <div className="flex items-center justify-center gap-6 w-full">
-                    <Link href="/contact" className="group relative px-10 py-5 bg-[#00FF00] text-black font-mono text-[13px] font-bold tracking-[0.1em] overflow-hidden active:scale-[0.98] transition-all duration-500 hover:shadow-[0_0_24px_rgba(0,255,0,0.4)]">
-                      <div className="absolute inset-0 bg-white -translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-out" />
-                      <span className="relative z-10">START A PROJECT</span>
+                    <Link href="/contact" className="group px-10 py-5 bg-white/[0.05] border border-white/20 text-white font-mono text-[10px] tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-colors duration-0 active:scale-[0.98]">
+                      [ INITIATE_PROJECT ]
                     </Link>
                     
-                    <Link href="#work" className="group relative px-10 py-5 border border-white/20 text-white font-mono text-[13px] tracking-[0.1em] overflow-hidden active:scale-[0.98] transition-all duration-500 hover:border-white/40 hover:bg-white/5">
-                      <span className="relative z-10">VIEW WORK</span>
-                      <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <Link href="#work" className="group px-10 py-5 bg-transparent border border-white/20 text-white font-mono text-[10px] tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-colors duration-0 active:scale-[0.98]">
+                      [ VIEW_ARCHIVE ]
                     </Link>
                   </div>
                 </div>
@@ -430,7 +474,7 @@ export default function DesktopHeroTest() {
           {/* Will fly past the 2000px perspective camera and disappear physically */}
           <div ref={tlStudioText} className="absolute anchor-center z-[30] w-[35vw] max-w-[480px]" style={{ willChange: "transform, opacity" }}>
             <div ref={hvStudioText} className="w-full h-full" style={{ willChange: "transform" }}>
-              <div className="floater w-full h-full" style={{ willChange: "transform" }}>
+              <div className="w-full h-full" style={{ willChange: "transform" }}>
                 <div ref={prlxStudioText} className="w-full h-full drop-shadow-[0_4px_32px_rgba(0,0,0,0.8)] text-left" style={{ WebkitFontSmoothing: "antialiased" }}>
                   <div className="flex items-center gap-3 mb-6">
                     <span className="text-[#00FF00] text-[11px] font-mono tracking-[0.3em] font-bold">── 01</span>
@@ -449,7 +493,7 @@ export default function DesktopHeroTest() {
 
           <div ref={tlSystemsText} className="absolute anchor-center z-[30] w-[35vw] max-w-[480px]" style={{ willChange: "transform, opacity" }}>
             <div ref={hvSystemsText} className="w-full h-full" style={{ willChange: "transform" }}>
-              <div className="floater w-full h-full" style={{ willChange: "transform" }}>
+              <div className="w-full h-full" style={{ willChange: "transform" }}>
                 <div ref={prlxSystemsText} className="w-full h-full flex flex-col items-end text-right drop-shadow-[0_4px_32px_rgba(0,0,0,0.8)]" style={{ WebkitFontSmoothing: "antialiased" }}>
                   <div className="flex items-center justify-end gap-3 mb-6">
                     <span className="text-white text-[11px] font-mono tracking-widest uppercase">Product & Systems</span>

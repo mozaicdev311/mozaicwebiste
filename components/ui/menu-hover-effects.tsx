@@ -58,6 +58,7 @@ export default function NavMenu() {
                     group-hover:text-black
                     text-2xl py-3 px-6 tracking-[0.1em]
                     lg:text-[11px] lg:py-2 lg:px-4 lg:tracking-wider
+                    glitch-hover
                   ">
                     {item.label}
                   </span>
