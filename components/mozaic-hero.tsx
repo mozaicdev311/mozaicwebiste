@@ -2,6 +2,7 @@
 
 import { useEffect } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ButtonGroup } from "@/components/ui/button-group"
 
@@ -147,9 +148,9 @@ export default function MozaicHero() {
             <a href="#team" className="hover:text-white transition-colors">
               TEAM
             </a>
-            <a href="#contact" className="hover:text-white transition-colors">
+            <Link href="/contact" className="hover:text-white transition-colors">
               CONTACT
-            </a>
+            </Link>
           </div>
         </div>
       </div>

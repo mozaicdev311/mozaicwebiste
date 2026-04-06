@@ -20,8 +20,9 @@ export const SplitHeroPanel = forwardRef<HTMLDivElement, SplitHeroPanelProps>(({
   return (
     <div
       ref={ref}
+      tabIndex={0}
       className={cn(
-        "panel-container relative h-full overflow-hidden pointer-events-auto cursor-pointer",
+        "panel-container relative h-full overflow-hidden pointer-events-auto cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50",
         className
       )}
       data-side={side}

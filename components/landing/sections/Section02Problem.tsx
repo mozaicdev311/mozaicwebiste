@@ -33,7 +33,7 @@ export default function Section02Problem() {
         </div>
         
         <h2 className="max-w-[12ch] text-[clamp(2.5rem,6vw,5.5rem)] leading-[1.05] tracking-[-0.04em] font-medium mb-16 text-white selection:bg-white selection:text-black">
-          Most companies don't need another agency.<br/>
+          Most companies don&apos;t need another agency.<br/>
           <span className="text-white/30">They need one system.</span>
         </h2>
         

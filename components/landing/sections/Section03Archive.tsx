@@ -6,7 +6,7 @@ import { WaveformGraph, SystemScanGraph, NodeGraph } from "../ui/Graphs";
 
 export default function Section03Archive() {
   return (
-    <section id="services" className="relative px-[5%] py-16 md:py-24 border-y border-white/10">
+    <section id="archive" className="relative scroll-mt-24 px-[5%] py-16 md:py-24 border-y border-white/10">
       <HudLabel className="mb-8">ARCHIVE.RECORDS // 03</HudLabel>
       <motion.h2 
         initial="hidden"
@@ -47,7 +47,7 @@ export default function Section03Archive() {
           <SystemScanGraph />
           <h3 className="text-[1.5rem] font-medium mb-4 text-white">Technical standards under genuine scrutiny.</h3>
           <p className="text-[1rem] text-white/50 leading-relaxed">
-            Security-first engineering shaped in high-stakes environments. Our tech lead's baseline is fintech. Reliability and compliance that do not disappear because the project happens to be a website. That is the technical floor.
+            Security-first engineering shaped in high-stakes environments. Our tech lead&apos;s baseline is fintech. Reliability and compliance that do not disappear because the project happens to be a website. That is the technical floor.
           </p>
         </InteractiveCard>
         

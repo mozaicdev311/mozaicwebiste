@@ -22,47 +22,47 @@ export function HeroPanelContent({
   return (
     <div
       className={cn(
-        "absolute bottom-[20%] w-full pointer-events-none px-6 lg:px-12",
-        isLeft ? "left-0 text-left lg:pl-[10%]" : "right-0 text-right lg:pr-[10%]"
+        "absolute top-1/2 -translate-y-1/2 w-[80vw] lg:w-[45vw] z-50 px-6 lg:px-0 pointer-events-none",
+        isLeft ? "right-1/2 text-right pr-6 lg:pr-[4vw]" : "left-1/2 text-left pl-6 lg:pl-[4vw]"
       )}
     >
       {/* Section Marker */}
       <div
         className={cn(
-          "flex items-center gap-3 mb-3",
-          isLeft ? "justify-start" : "justify-end"
+          "flex items-center gap-4 mb-4",
+          isLeft ? "justify-end" : "justify-start"
         )}
       >
-        {isLeft && <div className="w-6 h-px border-t border-white/40"></div>}
-        <span className="text-white/40 text-[10px] font-mono tracking-[0.15em]">
+        {!isLeft && <div className="w-12 h-px border-t border-white/50"></div>}
+        <span className="text-white/50 text-[12px] lg:text-[14px] font-mono tracking-[0.2em]">
           {marker}
         </span>
-        {!isLeft && <div className="w-6 h-px border-t border-white/40"></div>}
+        {isLeft && <div className="w-12 h-px border-t border-white/50"></div>}
       </div>
 
       {/* Title */}
       <h2
-        className="text-white text-[28px] lg:text-[36px] font-medium leading-none mb-3 tracking-[0.02em]"
+        className="text-white text-[36px] lg:text-[56px] font-medium leading-[1.1] mb-6 tracking-tight"
         style={{ fontFamily: "sans-serif" }}
       >
         {title}
       </h2>
 
       {/* Hover Descriptions (Controlled by GSAP) */}
-      <div className="relative h-20 overflow-visible">
+      <div className="relative h-40 overflow-visible mt-6">
         <div
           className={cn(
-            "panel-desc absolute top-0 w-full opacity-0 translate-y-2",
-            isLeft ? "left-0" : "right-0"
+            "panel-desc absolute top-0 w-full opacity-0 translate-y-4",
+            isLeft ? "right-0" : "left-0"
           )}
         >
-          <p className="text-white/50 text-[13px] font-mono leading-[1.6] mb-1">
+          <p className="text-white/80 text-[16px] lg:text-[20px] font-medium leading-[1.5] mb-3">
             {description}
           </p>
           <p
             className={cn(
-              "text-white/35 text-[11px] font-mono leading-[1.7] max-w-[280px]",
-              !isLeft && "ml-auto"
+              "text-white/50 text-[14px] lg:text-[16px] font-mono leading-[1.6] max-w-[380px]",
+              isLeft && "ml-auto"
             )}
           >
             {subDescription}

@@ -10,16 +10,24 @@ interface HeroActorsLayerProps {
 
 export function HeroActorsLayer({ className }: HeroActorsLayerProps) {
   return (
-    <div className={cn("hero-actors-layer absolute inset-0 z-[15] overflow-hidden pointer-events-none", className)}>
-      <div className="hero-actor-left absolute inset-0 flex items-center justify-start pl-[2vw] md:pl-[4vw]">
-        <div className="relative h-[88vh] w-[40vw] min-w-[240px] max-w-[700px]">
-          <AsciiAtlasActor className="hero-actor hero-actor-atlas absolute inset-0" />
+    <div className={cn("hero-actors-layer absolute inset-0 z-[5] overflow-hidden pointer-events-none", className)}>
+      {/* ATLAS ACTOR - Pushed far LEFT */}
+      <div className="hero-actor-left absolute inset-y-0 left-0 flex items-center justify-start w-[50%] overflow-hidden">
+        <div 
+          className="relative h-[85vh] w-[85vh] opacity-80 mix-blend-screen"
+          style={{ transform: 'translateX(-25%)' }} // Force pull it left
+        >
+          <AsciiAtlasActor className="hero-actor hero-actor-atlas absolute inset-0 w-full h-full object-contain object-left" />
         </div>
       </div>
 
-      <div className="hero-actor-right absolute inset-0 flex items-center justify-end pr-[1vw] md:pr-[2vw]">
-        <div className="relative h-[88vh] w-[44vw] min-w-[280px] max-w-[820px]">
-          <AsciiVitruvianActor className="hero-actor hero-actor-vitruvian absolute inset-0" />
+      {/* VITRUVIAN ACTOR - Pushed far RIGHT */}
+      <div className="hero-actor-right absolute inset-y-0 right-0 flex items-center justify-end w-[50%] overflow-hidden">
+        <div 
+          className="relative h-[85vh] w-[85vh] opacity-80 mix-blend-screen"
+          style={{ transform: 'translateX(25%)' }} // Force pull it right
+        >
+          <AsciiVitruvianActor className="hero-actor hero-actor-vitruvian absolute inset-0 w-full h-full object-contain object-right" />
         </div>
       </div>
     </div>

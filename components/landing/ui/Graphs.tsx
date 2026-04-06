@@ -1,6 +1,13 @@
 import React from "react";
 import { motion } from "motion/react";
 
+const SYSTEM_SCAN_BLOCK_DELAYS = Array.from({ length: 15 }, (_, i) => {
+  const row = Math.floor(i / 5)
+  const col = i % 5
+
+  return col * 0.1 + row * 0.2 + (i % 3) * 0.15
+})
+
 export const RotatingWireframe = () => (
   <motion.div 
     animate={{ rotateZ: 360, rotateX: 360, rotateY: 360 }}
@@ -111,7 +118,7 @@ export const SystemScanGraph = () => {
               transition={{
                 duration: 2.5,
                 repeat: Infinity,
-                delay: (col * 0.1) + (row * 0.2) + Math.random() * 0.5
+                delay: SYSTEM_SCAN_BLOCK_DELAYS[i]
               }}
             />
           );

@@ -1,6 +1,7 @@
 "use client"
 
 import { useRef } from "react"
+import Link from "next/link"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useGSAP } from "@gsap/react"
@@ -9,6 +10,7 @@ import { SplitHeroPanel } from "./split-hero-panel"
 import { HeroPanelContent } from "./hero-panel-content"
 import { HeroSeam } from "./hero-seam"
 import { HeroActorsLayer } from "./hero-actors-layer"
+import { HashLink } from "@/components/hash-link"
 import { FallingPattern } from "@/components/ui/falling-pattern"
 import { ScrollIndicator } from "./scroll-indicator"
 
@@ -32,45 +34,51 @@ interface HeroVisualState {
   actorPhaseMotionProfile: ActorPhaseMotionProfile
 }
 
+const HERO_VISUAL_STATE: HeroVisualState = {
+  phase4ActorProfile: {
+    minOpacity: 0.75, // Significantly boosted from 0.48
+    maxBlurPx: 0.35,
+    minBrightness: 1.15, // Significantly boosted from 0.72
+  },
+  phase4LayerMode: "actors_above_effects",
+  actorPhaseMotionProfile: {
+    phase2: { move: "converge", scale: "shrink" },
+    phase3: { move: "hold-center", scale: "hold" },
+    phase4: { move: "diverge", scale: "grow" },
+  },
+}
+
 export default function SplitHero() {
   const containerRef = useRef<HTMLDivElement>(null)
-  const heroVisualState: HeroVisualState = {
-    phase4ActorProfile: {
-      minOpacity: 0.48,
-      maxBlurPx: 0.35,
-      minBrightness: 0.72,
-    },
-    phase4LayerMode: "actors_above_effects",
-    actorPhaseMotionProfile: {
-      phase2: { move: "converge", scale: "shrink" },
-      phase3: { move: "hold-center", scale: "hold" },
-      phase4: { move: "diverge", scale: "grow" },
-    },
-  }
 
   useGSAP(
     () => {
       const mm = gsap.matchMedia()
 
       mm.add("(min-width: 1024px)", () => {
-        const { phase4ActorProfile, phase4LayerMode, actorPhaseMotionProfile } = heroVisualState
+        const { phase4ActorProfile, phase4LayerMode, actorPhaseMotionProfile } = HERO_VISUAL_STATE
+        const container = containerRef.current
+        const leftPanelEl = container?.querySelector(".panel-left-wrapper")
+        const rightPanelEl = container?.querySelector(".panel-right-wrapper")
 
         // Base desktop split state
         gsap.set(".panel-left-wrapper", { clipPath: "inset(0 50% 0 0)" })
         gsap.set(".panel-right-wrapper", { clipPath: "inset(0 0 0 50%)" })
-        gsap.set(".hero-seam-main", { left: "50%" })
+        gsap.set(".hero-seam-main", { x: "0vw" })
         gsap.set(".hero-actors-layer", { zIndex: 15 })
 
         // Actor baseline: split and clear
         gsap.set(".hero-actor-left", { xPercent: 0, scale: 1 })
         gsap.set(".hero-actor-right", { xPercent: 0, scale: 0.9 })
         gsap.set(".hero-actor", {
-          opacity: 0.9,
-          filter: "grayscale(0%) brightness(1) contrast(1)",
+          opacity: 1, // Increased from 0.9
+          filter: "grayscale(0%) brightness(1.3) contrast(1.1)", // Increased brightness
         })
 
         gsap.set(".matrix-rain-container", { "--bleed-progress": "0%" })
-        gsap.set(".s2-mobile-content", { opacity: 0 })
+
+        gsap.set(".panel-left-wrapper .panel-desc", { opacity: 0, y: 8 })
+        gsap.set(".panel-right-wrapper .panel-desc", { opacity: 0, y: 8 })
 
         let isLocked = false
 
@@ -78,25 +86,31 @@ export default function SplitHero() {
           if (isLocked) return
           gsap.to(".panel-left-wrapper", { clipPath: "inset(0 42% 0 0)", duration: 0.5, ease: "power3.out" })
           gsap.to(".panel-right-wrapper", { clipPath: "inset(0 0 0 58%)", duration: 0.5, ease: "power3.out" })
-          gsap.to(".hero-seam-main", { left: "58%", duration: 0.5, ease: "power3.out" })
+          gsap.to(".hero-seam-main", { x: "8vw", duration: 0.5, ease: "power3.out" })
           gsap.to(".panel-left-wrapper .panel-overlay", { backgroundColor: "rgba(0,0,0,0)", duration: 0.4 })
-          gsap.to(".panel-right-wrapper .panel-overlay", { backgroundColor: "rgba(0,0,0,0.4)", duration: 0.4 })
+          gsap.to(".panel-right-wrapper .panel-overlay", { backgroundColor: "rgba(0,0,0,0.6)", duration: 0.4 })
           gsap.to(".panel-left-wrapper .panel-desc", { opacity: 1, y: 0, duration: 0.4, ease: "power2.out", delay: 0.1 })
+          
+          // Move text blocks on hover to dodge the seam
+          gsap.to(".panel-left-wrapper .hero-panel-content > div", { x: "-2vw", duration: 0.4, ease: "power2.out" })
 
           gsap.to(".hero-actor-atlas", { opacity: 0.98, duration: 0.35, ease: "power2.out" })
-          gsap.to(".hero-actor-vitruvian", { opacity: 0.62, duration: 0.35, ease: "power2.out" })
+          gsap.to(".hero-actor-vitruvian", { opacity: 0.3, duration: 0.35, ease: "power2.out" })
         }
 
         const onMouseEnterRight = () => {
           if (isLocked) return
           gsap.to(".panel-left-wrapper", { clipPath: "inset(0 58% 0 0)", duration: 0.5, ease: "power3.out" })
           gsap.to(".panel-right-wrapper", { clipPath: "inset(0 0 0 42%)", duration: 0.5, ease: "power3.out" })
-          gsap.to(".hero-seam-main", { left: "42%", duration: 0.5, ease: "power3.out" })
-          gsap.to(".panel-left-wrapper .panel-overlay", { backgroundColor: "rgba(0,0,0,0.4)", duration: 0.4 })
+          gsap.to(".hero-seam-main", { x: "-8vw", duration: 0.5, ease: "power3.out" })
+          gsap.to(".panel-left-wrapper .panel-overlay", { backgroundColor: "rgba(0,0,0,0.6)", duration: 0.4 })
           gsap.to(".panel-right-wrapper .panel-overlay", { backgroundColor: "rgba(0,0,0,0)", duration: 0.4 })
           gsap.to(".panel-right-wrapper .panel-desc", { opacity: 1, y: 0, duration: 0.4, ease: "power2.out", delay: 0.1 })
 
-          gsap.to(".hero-actor-atlas", { opacity: 0.62, duration: 0.35, ease: "power2.out" })
+          // Move text blocks on hover to dodge the seam
+          gsap.to(".panel-right-wrapper .hero-panel-content > div", { x: "2vw", duration: 0.4, ease: "power2.out" })
+
+          gsap.to(".hero-actor-atlas", { opacity: 0.3, duration: 0.35, ease: "power2.out" })
           gsap.to(".hero-actor-vitruvian", { opacity: 0.98, duration: 0.35, ease: "power2.out" })
         }
 
@@ -104,14 +118,15 @@ export default function SplitHero() {
           if (isLocked) return
           gsap.to(".panel-left-wrapper", { clipPath: "inset(0 50% 0 0)", duration: 0.5, ease: "power3.out" })
           gsap.to(".panel-right-wrapper", { clipPath: "inset(0 0 0 50%)", duration: 0.5, ease: "power3.out" })
-          gsap.to(".hero-seam-main", { left: "50%", duration: 0.5, ease: "power3.out" })
+          gsap.to(".hero-seam-main", { x: "0vw", duration: 0.5, ease: "power3.out" })
           gsap.to(".panel-overlay", { backgroundColor: "rgba(0,0,0,0.2)", duration: 0.4 })
           gsap.to(".panel-desc", { opacity: 0, y: 8, duration: 0.3, ease: "power2.in" })
-          gsap.to(".hero-actor", { opacity: 0.9, duration: 0.35, ease: "power2.out" })
-        }
+          
+          gsap.to(".panel-left-wrapper .hero-panel-content > div", { x: "0vw", duration: 0.4, ease: "power2.out" })
+          gsap.to(".panel-right-wrapper .hero-panel-content > div", { x: "0vw", duration: 0.4, ease: "power2.out" })
 
-        const leftPanelEl = document.querySelector(".panel-left-wrapper")
-        const rightPanelEl = document.querySelector(".panel-right-wrapper")
+          gsap.to(".hero-actor", { opacity: 1, filter: "grayscale(0%) brightness(1.3) contrast(1.1)", duration: 0.35, ease: "power2.out" })
+        }
 
         leftPanelEl?.addEventListener("mouseenter", onMouseEnterLeft)
         leftPanelEl?.addEventListener("mouseleave", onMouseLeave)
@@ -126,14 +141,14 @@ export default function SplitHero() {
             scrub: 1.2,
             onUpdate: (self) => {
               const p = self.progress
-              const sysTextEl = document.querySelector(".system-status-text")
+              const sysTextEl = containerRef.current?.querySelector(".system-status-text") as HTMLElement | null
 
               if (p > 0.05 && !isLocked) {
                 isLocked = true
                 gsap.set(".panel-container", { cursor: "default" })
                 gsap.to(".panel-left-wrapper", { clipPath: "inset(0 50% 0 0)", duration: 0.3 })
                 gsap.to(".panel-right-wrapper", { clipPath: "inset(0 0 0 50%)", duration: 0.3 })
-                gsap.to(".hero-seam-main", { left: "50%", duration: 0.3 })
+                gsap.to(".hero-seam-main", { x: "0vw", duration: 0.3 })
                 gsap.to(".panel-desc", { opacity: 0, duration: 0.2 })
               } else if (p <= 0.05 && isLocked) {
                 isLocked = false
@@ -148,7 +163,7 @@ export default function SplitHero() {
                 else sysTextEl.textContent = "SYSTEM.UNIFIED"
               }
 
-              const barsContainer = document.querySelector(".progress-bars")
+              const barsContainer = containerRef.current?.querySelector(".progress-bars") as HTMLElement | null
               if (barsContainer) {
                 const bars = Math.floor(p * 8)
                 const children = barsContainer.children
@@ -200,7 +215,7 @@ export default function SplitHero() {
         masterTl.to(
           ".hero-actor",
           {
-            filter: "grayscale(100%) brightness(0.72) contrast(1.6)",
+            filter: "grayscale(100%) brightness(1.2) contrast(1.4)", // Raised brightness and contrast for overload phase
             duration: 0.08,
           },
           overloadStart
@@ -237,12 +252,12 @@ export default function SplitHero() {
 
         const lines = gsap.utils.toArray(".overload-line")
         lines.forEach((line: any) => {
-          const targetLeft = gsap.utils.random(0, 100) + "%"
+          const targetX = gsap.utils.random(-50, 50) + "vw"
 
           masterTl.to(
             line,
             {
-              left: targetLeft,
+              x: targetX,
               scaleY: gsap.utils.random(0.3, 1),
               yPercent: gsap.utils.random(-20, 20),
               opacity: gsap.utils.random(0.5, 1),
@@ -390,26 +405,13 @@ export default function SplitHero() {
         }
       })
 
-      mm.add("(max-width: 1023px)", () => {
-        gsap.set(".s2-mobile-content", { opacity: 1 })
-        gsap.set(".matrix-rain-container", { "--bleed-progress": "100%" })
-        gsap.set(".corruption-layer", { opacity: 0.6 })
-        gsap.set(".hero-seam-container", { display: "none" })
-        gsap.set(".hero-actor-left", { xPercent: 8, scale: 0.9 })
-        gsap.set(".hero-actor-right", { xPercent: -8, scale: 0.82 })
-        gsap.set(".hero-actor", {
-          opacity: 0.42,
-          filter: "grayscale(65%) brightness(0.72) contrast(1.15)",
-        })
-      })
-
       return () => mm.revert()
     },
     { scope: containerRef }
   )
 
   return (
-    <div ref={containerRef} className="hero-scroll-container w-full h-[250vh] bg-black">
+    <div ref={containerRef} className="hero-scroll-container w-full h-[350vh] bg-black">
       <div className="hero-sticky sticky top-0 w-full h-screen overflow-hidden">
         <SharedBackground isMobile={false} />
         <HeroActorsLayer />
@@ -451,16 +453,6 @@ export default function SplitHero() {
         <SharedTopBar />
         <SharedBottomBar />
 
-        {/* Mobile view structure */}
-        <div className="s2-mobile-content absolute inset-0 z-30 flex flex-col items-center justify-center px-6 lg:hidden opacity-0">
-          <h2 className="text-[32px] font-bold leading-[1.15] text-center text-white font-serif mb-4">
-            Brand, product, and intelligent systems.
-            <br />
-            Built as one.
-          </h2>
-          <div className="text-white/35 font-mono text-[10px] tracking-[0.2em] mt-12 animate-bounce">↓ SCROLL TO EXPLORE</div>
-        </div>
-
         {/* Layer 1: Corruption */}
         <div className="corruption-layer absolute inset-0 z-[35] bg-black opacity-0 pointer-events-none" />
 
@@ -488,22 +480,28 @@ export default function SplitHero() {
         <div className="absolute inset-0 z-[45] items-center justify-center pointer-events-none hidden lg:flex">
           <div className="max-w-[720px] w-full px-6 text-center">
             <div className="s2-label opacity-0 text-white/40 font-mono text-[10px] tracking-[0.15em] mb-12">Founder-led studio</div>
-            <h1 className="s2-headline opacity-0 text-white text-[36px] lg:text-[48px] font-bold leading-[1.15] font-serif mb-8">
-              Brand, product, and intelligent systems.
-              <br />
-              Built as one.
+            <h1 className="s2-headline opacity-0 text-white text-[42px] lg:text-[64px] font-medium leading-[1.1] font-serif tracking-tight mb-8 text-balance mx-auto">
+              Brand, product, and intelligent systems. Built as one.
             </h1>
-            <p className="s2-subheadline opacity-0 text-white/65 font-mono text-[14px] lg:text-[15px] leading-[1.7] max-w-[640px] mx-auto mb-10">
+            <p className="s2-subheadline opacity-0 text-white/65 font-mono text-[14px] lg:text-[15px] leading-[1.7] max-w-[640px] mx-auto mb-10 text-balance">
               Creative direction at global brand level. Engineering shaped in fintech. Product thinking from platforms we composed and shipped
               ourselves. One operating team. Led by founders. Backed by specialists.
             </p>
-            <div className="s2-ctas opacity-0 flex items-center justify-center gap-4 mb-12 pointer-events-auto">
-              <a href="#contact" className="px-6 py-3 bg-[#00FF66] text-black font-mono text-[12px] tracking-wider hover:brightness-110 transition-all">
-                START A PROJECT
-              </a>
-              <a href="#work" className="px-6 py-3 border border-white text-white font-mono text-[12px] tracking-wider hover:bg-white hover:text-black transition-all">
-                VIEW WORK
-              </a>
+            <div className="s2-ctas opacity-0 flex items-center justify-center gap-6 mb-12 pointer-events-auto">
+              <Link 
+                href="/contact" 
+                className="group relative px-8 py-4 bg-[var(--mozaic-green)] text-black font-mono text-[12px] tracking-[0.1em] overflow-hidden transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,0,0.4)]"
+              >
+                <span className="relative z-10 font-bold">START A PROJECT</span>
+                <div className="absolute inset-0 bg-white translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300 ease-in-out z-0"></div>
+              </Link>
+              <HashLink 
+                href="#work" 
+                className="group relative px-8 py-4 border border-white/30 text-white font-mono text-[12px] tracking-[0.1em] overflow-hidden transition-all duration-300 hover:border-white"
+              >
+                <span className="relative z-10">VIEW WORK</span>
+                <div className="absolute inset-0 bg-white/10 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300 ease-in-out z-0"></div>
+              </HashLink>
             </div>
             <div className="s2-stats opacity-0 flex items-center justify-center gap-6 font-mono text-[11px] text-white/45">
               <span>ONE OPERATING TEAM</span>

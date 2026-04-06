@@ -104,6 +104,7 @@
   /* Using Inter font as specified in brand guidelines */
   --font-sans: var(--font-inter), "Inter", system-ui, sans-serif;
   --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --font-serif: var(--font-serif), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -158,6 +159,17 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Hero GSAP Optimizations */
+.hero-actor {
+  will-change: filter, transform, opacity;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.panel-left-wrapper, .panel-right-wrapper {
+  will-change: clip-path, transform, filter, opacity;
 }
 
 /* MOZAIC Custom Typography Utilities */

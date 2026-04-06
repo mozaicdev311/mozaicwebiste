@@ -4,7 +4,7 @@ import { HudLabel, InteractiveCard, DataBar, fadeUp, staggerContainer } from "..
 
 export default function Section04Proof() {
   return (
-    <section id="work" className="relative px-[5%] py-16 md:py-24 border-y border-white/10">
+    <section id="work" className="relative scroll-mt-24 px-[5%] py-16 md:py-24 border-y border-white/10">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
         <motion.div 
           initial="hidden"
@@ -16,7 +16,7 @@ export default function Section04Proof() {
           <HudLabel className="mb-8">EVIDENCE.LOG // 04</HudLabel>
           <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] leading-[1.05] tracking-[-0.03em] font-medium mb-8">
             MOZAIC is new.<br/>
-            <span className="text-white/30">The standards aren't.</span>
+            <span className="text-white/30">The standards aren&apos;t.</span>
           </h2>
           <p className="text-[1.25rem] text-white/50 max-w-[40ch]">
             A selection of MOZAIC builds and the founder work that set the bar behind them.

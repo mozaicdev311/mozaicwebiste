@@ -3,6 +3,13 @@
 import { useEffect, useRef } from "react"
 import { cn } from "@/lib/utils"
 
+type HeroAsciiMode = "full" | "reduced" | "paused"
+
+interface HeroStateEventDetail {
+  asciiMode?: HeroAsciiMode
+  isWarping?: boolean
+}
+
 interface AsciiActorTuning {
   desktopHeightScale: number
   mobileHeightScale: number
@@ -31,6 +38,8 @@ export function AsciiActor({ className, videoSrc, tuning }: AsciiActorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const animationFrameRef = useRef<number | null>(null)
+  const renderLoopRunningRef = useRef(false)
+  const asciiModeRef = useRef<HeroAsciiMode>("full")
 
   useEffect(() => {
     const container = containerRef.current
@@ -47,10 +56,17 @@ export function AsciiActor({ className, videoSrc, tuning }: AsciiActorProps) {
 
     if (!offscreenCtx) return
 
+    let lastRenderTime = 0
+    let lastVideoTime = -1
+
     const syncCanvasSize = () => {
       const rect = container.getBoundingClientRect()
       const width = Math.max(1, Math.round(rect.width))
       const height = Math.max(1, Math.round(rect.height))
+
+      if (canvas.width === width && canvas.height === height) {
+        return
+      }
 
       canvas.width = width
       canvas.height = height
@@ -59,6 +75,61 @@ export function AsciiActor({ className, videoSrc, tuning }: AsciiActorProps) {
 
       ctx.imageSmoothingEnabled = false
       offscreenCtx.imageSmoothingEnabled = true
+    }
+
+    const getFrameInterval = () => {
+      return asciiModeRef.current === "full" ? 1000 / 18 : 1000 / 10
+    }
+
+    const getSampleDensity = () => {
+      return asciiModeRef.current === "full"
+        ? tuning.sampleDensity
+        : Math.max(84, Math.floor(tuning.sampleDensity * 0.68))
+    }
+
+    const stopRenderLoop = () => {
+      renderLoopRunningRef.current = false
+
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current)
+        animationFrameRef.current = null
+      }
+    }
+
+    const scheduleNextFrame = () => {
+      if (!renderLoopRunningRef.current) {
+        return
+      }
+
+      animationFrameRef.current = requestAnimationFrame(renderFrame)
+    }
+
+    const startRenderLoop = () => {
+      if (renderLoopRunningRef.current || asciiModeRef.current === "paused") {
+        return
+      }
+
+      renderLoopRunningRef.current = true
+      scheduleNextFrame()
+    }
+
+    const applyAsciiMode = (mode: HeroAsciiMode) => {
+      if (asciiModeRef.current === mode) {
+        return
+      }
+
+      asciiModeRef.current = mode
+
+      if (mode === "paused") {
+        stopRenderLoop()
+        video.pause()
+        return
+      }
+
+      lastRenderTime = 0
+      lastVideoTime = -1
+      void video.play().catch(() => {})
+      startRenderLoop()
     }
 
     const resizeObserver = new ResizeObserver(syncCanvasSize)
@@ -73,16 +144,33 @@ export function AsciiActor({ className, videoSrc, tuning }: AsciiActorProps) {
     }
 
     video.addEventListener("timeupdate", keepLoopSeamless)
-    void video.play().catch(() => {})
 
-    const renderFrame = () => {
+    const renderFrame = (now: number) => {
       const width = canvas.width
       const height = canvas.height
 
       if (!width || !height) {
-        animationFrameRef.current = requestAnimationFrame(renderFrame)
+        scheduleNextFrame()
         return
       }
+
+      if (now - lastRenderTime < getFrameInterval()) {
+        scheduleNextFrame()
+        return
+      }
+
+      if (video.readyState < 2) {
+        scheduleNextFrame()
+        return
+      }
+
+      if (video.currentTime === lastVideoTime && asciiModeRef.current === "full") {
+        scheduleNextFrame()
+        return
+      }
+
+      lastRenderTime = now
+      lastVideoTime = video.currentTime
 
       const isMobileViewport = window.innerWidth < 1024
       const heightScale = isMobileViewport ? tuning.mobileHeightScale : tuning.desktopHeightScale
@@ -92,33 +180,31 @@ export function AsciiActor({ className, videoSrc, tuning }: AsciiActorProps) {
       ctx.clearRect(0, 0, width, height)
       offscreenCtx.clearRect(0, 0, width, height)
 
-      if (video.readyState >= 2) {
-        const videoAspect = video.videoWidth ? video.videoWidth / video.videoHeight : 16 / 9
-        let figureHeight = height * heightScale
-        let figureWidth = figureHeight * videoAspect
-        const maxWidth = width * maxWidthScale
+      const videoAspect = video.videoWidth ? video.videoWidth / video.videoHeight : 16 / 9
+      let figureHeight = height * heightScale
+      let figureWidth = figureHeight * videoAspect
+      const maxWidth = width * maxWidthScale
 
-        if (figureWidth > maxWidth) {
-          figureWidth = maxWidth
-          figureHeight = figureWidth / videoAspect
-        }
-
-        const drawX =
-          tuning.mobileXOffsetMode === "center" && isMobileViewport
-            ? (width - figureWidth) / 2
-            : tuning.desktopHorizontalAnchor === "right"
-              ? width - figureWidth + width * tuning.desktopXOffset
-              : tuning.desktopHorizontalAnchor === "center"
-                ? (width - figureWidth) / 2 + width * tuning.desktopXOffset
-                : width * tuning.desktopXOffset
-        const drawY = (height - figureHeight) * yAlign
-
-        offscreenCtx.drawImage(video, drawX, drawY, figureWidth, figureHeight)
+      if (figureWidth > maxWidth) {
+        figureWidth = maxWidth
+        figureHeight = figureWidth / videoAspect
       }
+
+      const drawX =
+        tuning.mobileXOffsetMode === "center" && isMobileViewport
+          ? (width - figureWidth) / 2
+          : tuning.desktopHorizontalAnchor === "right"
+            ? width - figureWidth + width * tuning.desktopXOffset
+            : tuning.desktopHorizontalAnchor === "center"
+              ? (width - figureWidth) / 2 + width * tuning.desktopXOffset
+              : width * tuning.desktopXOffset
+      const drawY = (height - figureHeight) * yAlign
+
+      offscreenCtx.drawImage(video, drawX, drawY, figureWidth, figureHeight)
 
       const imageData = offscreenCtx.getImageData(0, 0, width, height)
       const pixels = imageData.data
-      const step = Math.max(2, Math.floor(width / tuning.sampleDensity))
+      const step = Math.max(2, Math.floor(width / getSampleDensity()))
 
       for (let y = 0; y < height; y += step) {
         for (let x = 0; x < width; x += step) {
@@ -136,18 +222,62 @@ export function AsciiActor({ className, videoSrc, tuning }: AsciiActorProps) {
         }
       }
 
-      animationFrameRef.current = requestAnimationFrame(renderFrame)
+      scheduleNextFrame()
     }
 
-    animationFrameRef.current = requestAnimationFrame(renderFrame)
+    const handleHeroState = (event: Event) => {
+      if (!(event instanceof CustomEvent)) {
+        return
+      }
+
+      const detail = event.detail as HeroStateEventDetail
+      if (detail.asciiMode) {
+        applyAsciiMode(detail.asciiMode)
+      }
+    }
+
+    const handleWarpState = (event: Event) => {
+      if (!(event instanceof CustomEvent)) {
+        return
+      }
+
+      const detail = event.detail as HeroStateEventDetail
+      if (typeof detail.isWarping === "boolean") {
+        if (detail.isWarping) {
+          applyAsciiMode("paused")
+        } else if (asciiModeRef.current === "paused") {
+          applyAsciiMode("full")
+        }
+      }
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        stopRenderLoop()
+        video.pause()
+        return
+      }
+
+      if (asciiModeRef.current !== "paused") {
+        void video.play().catch(() => {})
+        startRenderLoop()
+      }
+    }
+
+    window.addEventListener("mozaic-hero-state", handleHeroState)
+    window.addEventListener("mozaic-warp-state", handleWarpState)
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+
+    void video.play().catch(() => {})
+    startRenderLoop()
 
     return () => {
+      window.removeEventListener("mozaic-hero-state", handleHeroState)
+      window.removeEventListener("mozaic-warp-state", handleWarpState)
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
       resizeObserver.disconnect()
       video.removeEventListener("timeupdate", keepLoopSeamless)
-
-      if (animationFrameRef.current !== null) {
-        cancelAnimationFrame(animationFrameRef.current)
-      }
+      stopRenderLoop()
     }
   }, [tuning, videoSrc])
 
